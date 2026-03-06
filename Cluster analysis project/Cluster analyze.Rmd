@@ -1,0 +1,319 @@
+---
+title: "Cluster analysis"
+author: "PorroAndrea"
+date: "2024-12-15"
+output: pdf_document
+---
+
+# CLUSTER ANALYSIS
+
+The main goal of the last project of Introduction to Data Mining for Business Intelligence is the cluster analysis of a data set called "houseprice", which as the name suggests concerns housing prices.
+
+## Introduction & EDA
+
+First off all let's upload the data set and take a first look
+
+```{r 11}
+data=read.csv("houseprice.csv")
+head(data)
+```
+
+The data set is made by 7 variables:
+
+-   **Living area**, measures the area of the living area in units.
+
+-   **Bathrooms**, indicates the number of bathrooms present.
+
+-   **Bedrooms**, indicates the number of bedrooms present
+
+-   **Lot size**, represents the size of the land on which the house is located.
+
+-   **Age**, indicates the age of the house.
+
+-   **Fireplace**, a binary variable indicating if a fireplace is present (0 = absent, 1 = present).
+
+-   **Price**, is the price of the house in thousands of dollars
+
+As can be deduced the analysis of this data set is about buying and selling houses. Let us now proceed to create an introduction graph.
+
+```{r 1.1.0}
+library(DataExplorer)
+plot_intro(data)
+```
+
+There are several consideration to do seeing this graph. The graph could be divided into three part:
+
+-   **Columns**, the red part of our graph is focused on our columns. This divides the columns into two categories: numeric variables and categorical variables. From what it can be seen from the graph, all the seven variable of the data set are numerical. Therefore, no elimination or transformation of any variable is necessary.
+
+-   **Row**, the blue part of our graph is focused on our rows. Differently from the previous part regarding the columns, in this portion there is only one bar. The complete row is equal to 100%, meaning that considering all the rows of the data set there aren't any missing values. Considering the NA is important for the cluster analysis.
+
+-   **Missing observation**, the last part that is analyzed is about the missing values (NA). Analyzing the missing values. is extremely important because knowing the presence of NA allows taking precaution during the study. The data set about house price has 0% of missing values, which is perfect.
+
+Another general analyze the study will do is about the variables. The summary is one of the most important command on RStudio. This command allows to know important information for each variable. If the variables are numerical the command will print:
+
+-   **The minimum**, that is the lowest value.
+
+-   **The first quartile**, means that the 25% of my observation reach up to the value of this quartile.
+
+-   **The median**, this is the central value. In addition the median represent also the second quartile meaningt that the 50% of my observation reach up to the value of this quartile.
+
+-   **The mean**, that is the average value.
+
+-   **The third quartile**, means that the 75% of my observation reach up to the value of this quartile.
+
+-   **The maximum**, the highest value for the variable
+
+```{r 1.1.2}
+summary(data)
+```
+
+Let's take a look for some variables:
+
+-   **Price\
+    \
+    **This is probably the most important variable in the data set. Using this command, it was discovered that the lowest value is 1.686 and the highest 44.644 (obviously in millions). the average price for an house is 16.386. Interestingly, the mean is higher than the median, suggesting that the distribution might have a positive skew. However, since there isn't any graph this remains only an hypothesis.\
+    \
+    Another important point is the variability. The difference between the lowest and highest price is 42.958. This means that there are houses where the price is significantly higher than others.\
+    \
+    Let's now analyze some quartiles. The first quartile of Price is 11.201, meaning that 25% of the house have a price lower than this value. The second quartile, represented by the median is 15.192, meaning that 50% of house have a lower price. The third quartile vale is 20.523.
+
+-   **Age**
+
+    As before, let's start by analyzing the minimum and maximum. The lowest value of Age is 0 and the highest is 247. This means that there is a sale of extremely recent houses, but also houses built more than two centuries ago. Also for this variable there is a positive skew, however, it's still an hypothesis. In this quartile analysis 25% of the houses are less than 6 years old, 50% lower than 18 and 75% lower than 34. This means that most of the houses can be considered recent. Constructing a graph might help with better deduction.
+
+```{r 1.1.3}
+library(dplyr)
+zero_var_cols = data %>%
+  summarise(across(everything(), ~ var(. , na.rm = TRUE) == 0)) %>%
+  select(where(~ .)) %>%
+  names()
+
+if (length(zero_var_cols) > 0) {
+  cat('Variables with variability equal to 0: \n', paste(zero_var_cols, collapse = ','))
+} else {
+  cat("There aren't any variable which has variability equal to 0")
+}
+```
+
+Important for study and statistical purposes is to check that all variables have variability other than 0. In this case all 7 variables have different variability.
+
+Finally before starting with the cluster analyze other two plot are done. The first one is a correlation matrix and correlation plot that give us the correlation values between the variables.
+
+```{r 1.1.4}
+library(corrplot)
+corr_matrix=cor(data, use="complete.obs")
+head(corr_matrix)
+```
+
+```{r 1.1.5}
+corrplot.mixed(corr_matrix, lower='number', upper='circle', tl.pos='lt',
+               tl.col='black', tl.srt=45, diag='u', title='Corrlation plot')
+
+```
+
+Let's focus our to the graph above, which can be divided into three part:
+
+-   The first section is where the bubble are dark blue. If the correlation between two variables is represented by a blue bubble, it means the correlation is positive. In the study, it can be seen that there are 5 bubble where the correlation is medium to high (correlation \> 0.5), which is also evident from the size of bubbles. The larger the circle, the higher the correlation. The highest correlation is between "Price" and "Living Area".
+
+-   The second section contains the red bubbles. A red bubble indicates a negative correlation. In the study, there aren't some variable that shows a medium to high negative correlation.
+
+-   The third section contains bubbles that are light blue and light red. If a bubble has one of these colors, it indicates that the correlation is very low or even nonexistent.
+
+It is possible to create a cycle that give all the information for high or lower correlation, an example of this command is:
+
+```{r 1.1.6}
+corr_LA_B=corr_matrix['Living.Area', 'Bathrooms']
+if (abs(corr_LA_B) < 0.5) {
+  print('Living area and bathrooms have a weak or no linear relationship')
+} else {
+  print('Living area and bathrooms have moderately or strongly relationship')
+}
+```
+
+The last graph it is done regards the many information that have been seen in the EDA.
+
+```{r 1.1.7}
+library(psych)
+pairs.panels(data)
+
+```
+
+## Cluster analysis
+
+Let's start with the cluster analysis. Cluster analysis is a way to group things that are similar to each other. The goal is to have items in the same group be as similar as possible and items in different groups be as different as possible.
+
+First of all it is necessary to standardize the data to make a more opportunity analysis.
+
+```{r 1.2.1}
+data_st=scale(data)
+```
+
+### **What is the appropriate number of clusters?**
+
+The study continues with the construction of the elbow method, which is a technique that allows us to figure out the appropriate number of clusters (K) to consider for our study.
+
+```{r 1.2.2}
+library(factoextra)
+library(FactoMineR)
+fviz_nbclust(data_st, kmeans, method="wss", nstart=10)
+```
+
+From the constructed graph I assume that the appropriate number of clusters is 2. I then proceed to reconstruct the graph by highlighting cluster 2.
+
+```{r 1.2.3}
+fviz_nbclust(data_st, kmeans, method="wss", nstart=10) +
+  geom_vline(xintercept = 2, linetype=2)
+```
+
+The elbow method is not the only method ottiamle to determine the appropriate number of clusters. There are other methods including the silhouette method. Let us try graph construction by this other method to be sure that the assumed number of clusters is correct.
+
+```{r 1.2.4}
+library(cluster)
+fviz_nbclust(data_st, pam, method="silhouette", nstart=10)
+```
+
+This method also confirms that the appropriate number is 2. I proceed with the analysis then by considering two clusters the optimal number.
+
+```{r 1.3}
+dato.km=kmeans(data_st, 2, nstart=10)
+print(dato.km)
+```
+
+The command above here results in the mean of each variable for the various clusters, the vector of clusters (it indicates for each observation whether it belongs to cluster 1 or 2), within-cluster sum of squares which is the sum of the distances of the points from the cluster of its centroid. Low values indicated compact clusters. Among the most important information that can be obtained is certainly that concerning the clusters' mean. From the results obtained, it can be concluded that cluster 1 is the one regarding large house with more bathrooms and bedrooms. Generally these are also the newer houses with larger spaces. Moreover, these are the houses that have a fireplace and cost more. Cluster two, on the other hand, are small houses with few bathrooms and bedrooms. They are generally cheaper and older than those in cluster one. However, I proceed with the use of a command to better interpret the results obtained used the values of the data set under study.
+
+```{r 1.3.2}
+aggregate(data, by=list(dato.km$cluster), mean)
+```
+
+The aggregate results perfectly confirm the assumptions based on the standardized centroids made earlier. The two clusters are distinct and represent groups of houses with clearly differentiated characteristics:
+
+-   Cluster 1: Large, newer houses with more bathrooms and bedrooms, generally with fireplaces and a higher price tag.
+
+-   Cluster 2: Small, older houses with fewer bathrooms and bedrooms, rarely with fireplaces and a lower price.
+
+```{r 1.3.3}
+data$Cluster <- dato.km$cluster
+print("Cluster Sizes:")
+print(table(data$Cluster))
+```
+
+Interesting is to understand the sizes of the two clusters. Based on the data set under study, we have that the presence of houses belonging to cluster 1 is higher than those belonging to cluster 2. Cluster 1 in total 434 observations and cluster 2 on the other hand 613. It can be concluded by saying that it is easier to find old and less expensive houses on the market than new and big houses.
+
+```{r 1.3.4}
+
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+data_long <- data %>%
+  pivot_longer(
+    cols = -Cluster,                
+    names_to = "Characteristic",    
+    values_to = "Value"  
+  )
+
+ggplot(data_long, aes(x = Characteristic, y = Value, fill = as.factor(Cluster))) +
+  geom_bar(stat = "summary", fun = "mean", position = "dodge") +  # Media per cluster
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(title = "Cluster Characteristics Comparison",
+       x = "Characteristic", 
+       y = "Mean Value", 
+       fill = "Cluster") +
+  geom_text(stat = "summary", fun = "mean",
+            aes(label = sprintf("%.2f", ..y..)),
+            position = position_dodge(width = 0.9), 
+            vjust = -0.5, 
+            size = 3)
+```
+
+This graph is used to confirm and visualize the hypotheses that were previously made about the clusters. Basically, by creating this bar graph, it is making it clearer and more visible how the two clusters differ from each other regarding various characteristics of the houses. It can be seen that the two variables that differ the most are in the two clusters are "Age" and "Price".
+
+```{r 1.3.5}
+library(cluster)
+fviz_cluster(dato.km, data=data_st,geom='point', repel=F, show.clust.cent=T)
+```
+
+As a last graph I created a scatter plot, in which each point represents one observation, in our case a house. The observations are colored red if they belong to cluster 1 and blue if they belong to cluster 2. The graph created allows us to clearly see the division of the two clusters. If the value of PC1 is positive we will find the houses that belong to cluster 2, conversely with negative values of the first principal component we find the houses that belong to cluster 1.
+
+### **Choice of distance**
+
+The study of cluster analysis proceeds by using different clster clustering methods such as ward, mean or single. Then for each method we proceed to create its dendogram. To understand the quality of clustering I will use the correlation of cophenetic distances. However, first it is necessary to decide which distance method to use. In this case I will use the Euclidean distance.
+
+```{r 1.4.1}
+datos.dist.eucl=dist(data_st, method='euclidean')
+```
+
+```{r 1.4.2}
+fviz_dist(datos.dist.eucl)
+```
+
+The command used is nothing more than the creation of the distance matrix. Each small square indicates the Euclidean distance between two variables. If a cell is dark it means that the distance between the two observations is far, on the other hand if the color is light it means that this distance is small. This graph allows to quickly understand which observations are distant from each other and which are close to each other.
+
+#### Ward method
+
+The Ward.D2 method is a method of cluster analysis. This method is based on minimizing the sum of variances within clusters. This method makes it possible to produce separate clusters, which is why it is considered one of the best methods.
+
+```{r 1.5.1}
+dato.hc=hclust(d=datos.dist.eucl, method='ward.D2')
+```
+
+```{r 1.5.2}
+fviz_dend(dato.hc, k = 2, cex = 0.5, rect = TRUE, rect_border = "blue", rect_fill = FALSE)
+
+```
+
+The above graph directly shows which observations belong to one cluster and which belong to another cluster. However, commenting on the dendograms is quite difficult for that reason I proceed to verify the cophenetic distance to check whether the cluster I obtained can be considered good or not. If such value is high it means to have a better cluster.
+
+```{r 1.5.3}
+res.coph=cophenetic(dato.hc)
+cor(datos.dist.eucl, res.coph)
+```
+
+The correlation value is low average. A value of 0.5231 indicates moderate correlation this signifies that the cluster has an average ability to preserve the original distances between observations. However, for the purpose of commenting on these indices more correctly I proceed to the creation of the dendograms and cophenetic distance for the other cluster methods as well.
+
+#### Average method
+
+The averaging method is a clustering technique used to group observations. In fact, in each step the two clusters that have the lowest average diststance are combined. This method is a balanced method that produces very robust results with little sensitivity to outliers.
+
+```{r 1.6.1}
+dato.md = hclust(d=datos.dist.eucl, method='average')
+```
+
+```{r 1.6.2}
+fviz_dend(dato.md, k = 2, cex = 0.5, rect = TRUE, rect_border = "blue", rect_fill = FALSE)
+```
+
+```{r 1.6.3}
+res.coph=cophenetic(dato.md)
+cor(datos.dist.eucl, res.coph)
+```
+
+#### Single method
+
+The single bond method is the last cluster technique we will see in our study. In this method, observations are joined based on their minimum distance. This method can be affected by outliers, so special attention must be paid to the following
+
+```{r 1.7.1}
+dato.sg = hclust(d=datos.dist.eucl, method='single')
+```
+
+```{r 1.7.2}
+fviz_dend(dato.sg, k = 2, cex = 0.5, rect = TRUE, rect_border = "blue", rect_fill = FALSE)
+```
+
+```{r 1.7.3}
+res.coph=cophenetic(dato.sg)
+cor(datos.dist.eucl,res.coph)
+```
+
+### Conclusions
+
+|                |                                                       |
+|----------------|:-----------------------------------------------------:|
+|                | Correlation between cophenetic and Euclidean distance |
+| Ward method    |                        0.5230                         |
+| Average method |                        0.7604                         |
+| Single method  |                        0.6815                         |
+
+The results obtained are critical in choosing the best clustering method. A value close to 1 indicates that the dendogram represents the distances well, while a value close to 0 indicates poor representation of the data. The results obtained can all be considered good with medium to high values. The average method has the highest correlation and thus can be called the most effective in representing the structure of the data. As the second best method we find the single method which, however, may have problems due to outliers. Finally as the last method we have the ward method which seems to be the worst in this case.
+
+In conclusion, it can be said that Cluster 1 is about large, new and expensive houses. Whereas cluster 2 smaller, older and less expensive houses. The best cluster method is the Average Method because of its high cophenetic correlation. These findings can guide further strategic decisions, such as for pricing policies, marketing strategies, or real estate investments.
