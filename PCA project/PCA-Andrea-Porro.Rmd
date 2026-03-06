@@ -1,0 +1,879 @@
+---
+title: "PCA analysis"
+author: "PorroAndrea"
+date: "2024-11-25"
+output: pdf_document
+---
+
+# PCA ANALYSIS
+
+In the second project of introduction to Data Mining for Business Intelligence the main goal is the PCA analysis for two data-set called:
+
+1.  Life expectation data set
+
+2.  Starbucks Customer Survey
+
+## **Part A – Life expectation data set**
+
+### Introduction & EDA
+
+The first part is dedicated to the data-set called "life expectation data set"
+
+```{r 1.1}
+data=read.csv("Life Expectancy Data.csv")
+NewData= subset(data, Year==2015)
+head(NewData)
+```
+
+The data set is made by 22 variables:
+
+1.  **Country**, the name of the country.
+
+2.  **Year**, the year in analysis.
+
+3.  **Status**, if the state in a developing o developed status.
+
+4.  **Life expectancy**, as the name of the variable is the life expectancy in age.
+
+5.  **Adult mortality**, the adult mortality rates of both sexes (probability of dying between 15 and 60 years per 1000 population).
+
+6.  **Infant deaths**, number of infant deaths per 1000 population.
+
+7.  **Alcohol**, is the use of alcohol recorded per capita (15+) consumption (in liters of pure alcohol).
+
+8.  **Percentage expenditure**, is the expenditure on health as a percentage of gross domestic product per capita (%).
+
+9.  **Hepatitis B**, hepatitis B immunization coverage among 1 years old.
+
+10. **Measles**, number of reported cases per 1000 population.
+
+11. **BMI**, average body mass index of entire population.
+
+12. **Under five deaths**, number of under five years deaths per 1000 population.
+
+13. **Polio**, polio immunization coverage among 1 years old (%).
+
+14. **Total expenditure**, general government expenditure on health as a percentage of total government expenditure (%).
+
+15. **Diphtheria**, diphtheria tetanus toxoid and pertussis immunization coverage among 1 year old (%).
+
+16. **HIV/AIDS**, deaths per 1000 live births HIV/AIDS (0-4 years).
+
+17. **GDP**, gross domestic product per capita (in USD).
+
+18. **Population**, population of the country.
+
+19. **Thinness 10-19 years**, prevalence of thinness among children and adolescents for age 10 to 19 (%).
+
+20. **Thinness 5-9 years**, prevalence of thinness among children for age 5 to 9 (%).
+
+21. **Income composition of resources**, human development index in terms of income composition of resources (index ranging from 0 to 1)
+
+22. **Schooling**, number of years of schooling (years)
+
+As it can be seen, the work woulds like to proceed analyzing the year "2015", moreover for the PCA analysis only variables that are1 numerical need to be considered.
+
+```{r 1.2}
+library(DataExplorer)
+plot_intro(NewData)
+```
+
+There are several consideration to do seeing this graph. The graph could be divided into three parts:
+
+-   **Columns**, the red part of our graph is focused on our columns. This divides the columns into two categories: numeric variables and categorical variables. From what it can be seen from the graph, the data-set has 20 numerical variable,90.9%, and only 2 categorical variable, 9.1%.
+
+-   **Row**, the blue part of our graph is focused on our rows. Differently from the previous part regarding the columns, in this portion there is only one graph bar. The complete row is equal to 1.1% meaning that considering all the rows of the data-set there are 98.9% rows with missing values. Considering the NA is important for the analysis and for this work the variables with missing values will be deleted.
+
+-   **Missing observation**, the last part that is analyzed is about the missing values (NA). Analyzing the missing values is extremely important because knowing the presence of NA allows taking precautions during the study. The data-set about life expectation has 11.5% of missing values.
+
+Since the study of missing values is so important the analysis propose another graph about the NA
+
+```{r 1.3}
+plot_missing(NewData)
+```
+
+The graph above gives to the project a clear vision of which variables have more missing values and which variables have less NA. As before, this graph could be divided into three different part.
+
+-   **Green part**, in this part there are all the variables where the NA are lower than 5% and for this reason it could be considered acceptable.
+
+-   **Yellow part**, in this part there are all the variables with a number of missing values higher than 5%, however also these variables can be considered acceptable.
+
+-   **Red part**, in this last part there are all the variables where the number of missing values are too high. These variables must be always deleted. In this data-set there are "Alcohol" and "Total.expenditure" which have an high number of NA.
+
+The last general analyze the study will do about the variables before starting to answears to more specifics questions is the summary. The summary is one of the most important command on RStudio. This command allows to know important information for each variable. If the variables are numerical the command will print:
+
+-   **The minimum**, that is the lowest value.
+
+-   **The first quartile**, means that the 25% of my observations reach up to the value of this quartile.
+
+-   **The median**, this is the central value. In addition the median represent also the second quartile meaning that the 50% of my observations reach up to the value of this quartile.
+
+-   **The mean**, that is the average value.
+
+-   **The third quartile**, means that the 75% of my observations reach up to the value of this quartile.
+
+-   **The maximum,** the highest value for the variable.
+
+-   **NA’s**, the number of missing values for the variable. If the variable hasn’t any NA than there will not be this voice.
+
+For the categorical variables the command will give other information
+
+```{r 1.4}
+summary(NewData)
+```
+
+The first variable shown using this command is "Country", which is a categorical variable. The command provides only the length, which is 183 and bot the class and the mode return "character".
+
+Let's move on the analysis of few numerical variables, since the interpretation is similar for each one:
+
+-   **Year**
+
+    As mentioned earlier, the study focuses on analyzing only the "2015" year. For this reason, the output shows "2015" for each index. This confirms that the previously code operated correctly.
+
+-   **Life expectancy**
+
+    This is one of the most important variables in the data set. Using the command, it was discovered that the lowest value is 51 and the highest is 88. The average value for life expectancy is 71.62. Interestingly, the mean is lower than the median, suggesting that the distribution might have a negative skew, meaning some countries have a very low life expectancy, but most countries have values close to the mean. However, since there isn't any graph this remains only a hypothesis.
+
+    Another important point is the variability. The difference between the lowest and highest values is 37, meaning that in some countries people live for 37 years longer than other states.
+
+    Let's now analyze some quartiles. The first quartile of Life expectancy is 65.75, meaning that 25% of the countries have a life expectancy lower that this values. The second quartile, represented by the median is 73.90, meaning that 50% of the countries have a life expectancy lower than 73.90 years old. The third quartile value is 76.95. Countries with a values higher than this have a longer life expectancy.
+
+-   **Alcohol**
+
+    As before, let's start by analyzing the minimum and maximum. The lowest value of Alcohol is 0.010 and the highest is 10.660. As was noted in plot_missing, this variable has one of the highest numbers of missing values, which is 177. The mean and the median are close which could suggest a normal distribution without any asymmetry.
+
+    In this quartile analysis, 25% of countries have an Alcohol level lower then 2.493, 50% lower than 5.285 and 75% lower than 8.010.
+
+For the main goal of this analysis it is asked to select only the variables which are numerical and without any NA.
+
+```{r 1.5}
+library(dplyr)
+NewData_numeric = NewData %>% select_if(is.numeric)
+plot_intro(NewData_numeric)
+```
+
+In this first code only numerical variables were selected . The data set went from 22 variables to 20 variables.
+
+```{r 1.6}
+NewData_NA = NewData_numeric %>% select_if(~all(!is.na(.)))
+plot_intro(NewData_NA)
+```
+
+In this second code only the variables that din't have any NA were selected. The data set went from 20 variables to 10 variables.
+
+```{r 1.7}
+zero_var_cols <- NewData_NA %>%
+  summarise(across(everything(), ~ var(., na.rm = TRUE) == 0)) %>%
+  select(where(~ .)) %>%
+  names()
+
+
+if (length(zero_var_cols) > 0) {
+  cat("Variables with variability equal to 0:\n", paste(zero_var_cols, collapse = ", "))
+} else {
+  cat("There aren't any variable which has variability equal to 0")
+}
+
+DataFinal = NewData_NA %>% select(! Year)
+```
+
+For the goal of the study is important to delete from the data set also the variable "Year". This variable must be deleted because the variability is equal to 0, meaning that for each row this variable has the same value which is 2015.
+
+Finally before starting with the PCA analyze other two plot are done on the final data set. The first one is a correlation plot and correlation matrix that give us the correlation values between the variables.
+
+```{r 1.8}
+library(corrplot)
+corr_matrix=cor(DataFinal, use = "complete.obs") 
+print(corr_matrix)
+
+```
+
+```{r 1.9}
+corrplot.mixed(corr_matrix,lower='number',upper="circle", tl.pos="lt", tl.col="black",
+               tl.srt=45, diag="u", title='Correlation plot')
+```
+
+Let's focus our attention the upper part of the on the graph, which can be divided into three distinct sections:
+
+-   The first section is where the bubble are dark blue. If the correlation between two variables is represented by a blue bubble, it means the correlation is positive. In the study, it can be seen that there are 7 bubble where the correlation is medium to high, which is also evident from the size of the bubbles. The larger the circle, the higher the correlation. The highest correlation is between "infant deaths" and "under five deaths".
+
+-   The second section contains the red bubbles. A red bubble indicates a negative correlation. In the study, there are 8 variables that show medium to high negative correlations. An example could be the relation between "life expectancy" and "adult mortality", this correlation is equal to -0.78. Obviously higher the mortality in adults means that life expectancy is lower. The same is true in reverse.
+
+-   The third section contains bubbles that are light blue and light red. If a bubble has one of these colors, it indicates that the correlation is very low or even nonexistent. Since our target variable is "life expectancy," a correlation close to 0 helps to avoid multicollinearity issues situations where variables explain the same thing.
+
+It is possible to create a cycle that give all the information for high or low correlations, an example of this command is:
+
+```{r 1.91}
+corr_AM_LE=corr_matrix["Life.expectancy", "Adult.Mortality"]
+if (abs(corr_AM_LE) < 0.5) {
+  print("Adult mortality and life expectancy have a weak or no linear relationship.")
+} else {
+  print("Adult mortality and life expectancy have moderately or strongly relationship")
+}
+```
+
+To improve the life expectancy, each country should focus on decrease the HIV AIDS deaths through prevention and awareness raising on the topic, making access to treatment easier, but also through increased psychological support. Another important aspect to decrease is the adult mortality. Examples of the major causes of deaths in adults include smoking, alcohol, and communicable diseases.
+
+Finally, we have a graph that encapsulates many observations made throughout the EDA.
+
+```{r 1.92}
+library(psych)
+pairs.panels(DataFinal)
+```
+
+### PCA ANALYSIS
+
+Let's start with the PCA analysis.
+
+```{r 2}
+summary(prcomp(DataFinal))
+```
+
+It is clear that the PC1 explains more variability then others, almost 100% (99.97%). However, it is necessary to standardize the data to make a more opportunity analysis.
+
+```{r 2.1}
+data_scaled=scale(DataFinal)
+data_pca=prcomp(data_scaled)
+summary(data_pca)
+```
+
+The result gives:
+
+-   **Standard deviation**, basically it shows the standard deviation of each principal component (PC). The standard deviation represents the amount of variation captured by each principal component.
+
+-   **Proportion of variance**, this shows the proportion of the total variance explained by each PC. The first PC explain 38.27% of variance. The last PC explain only a 00.04% of the variance.
+
+-   **Cumulative proportion**, this last row is a simple sum of the proportion of variance explained by each. In this way it is clear that the first 3 PC explain more then 75% of the variance.
+
+Other two important PCA tools are:
+
+```{r 2.1.1}
+data_pca$rotation
+```
+
+This shows the contribute of each variable for the building of the PC. if we analyze the first PC it can be seen that "life expectancy", "Polio" and "Diphtheria" are positive. That mean that the increase of 1 unit of the first PC make increase those PC for 0.43, 0,34 and 0.33. However "Adult.mortality", "Infant.deaths", "Measles", "Under.five.deaths" and "HIV.AIDS" are negative correlated with this PC. In conclusion we can say the first PC is correlated with all the stuff that help the life expectancy and negative correlated with those things that reduce the life expectancy.
+
+```{r 2.1.2}
+head(data_pca$x)
+```
+
+Basically, this is the same of the command `x$rotation`, but in this case it is analyzed how much each observation explain of the PC.
+
+```{r 3}
+library(ggplot2)
+library(factoextra)
+fviz_pca_ind(data_pca, title="PCA - datos life expectation ")
+```
+
+The graph it has been done shows how each observation is distributed based on the first and second PC. Each point in the plot represent an observation of our data set. The x-axis represent the PC1 and the y-axis represent the PC2. Let's make a more clear graph which shows also the relation between variables.
+
+```{r 3.1}
+fviz_pca_biplot(data_pca, title="PCA -Life expectation data")
+```
+
+This second graph shows how each observation (the black points) is distributed based on the first and second PC. Moreover the graph shows some blue arrows which indicate the contribution of variables to the PC. The length is how strong a variable is associated with the PC and the direction is basically if the variable is positively or negatively correlated. Variables such as "Life expectancy", "Diphtheria" and "Polio" are positively correlated with the first PC. Variables such as "HIV/AIDS" and "Adult_mortality" are more correlated with second PC. Lastly variables such as "under_five_deaths", "infant_deaths" and "measles" are variables which are negative correlated with both the PC. The graph shows also the presence of outliers like the observation 1187 or 1894 which are far from the distribution cloud.
+
+```{r 3.2}
+fviz_pca_biplot(data_pca,
+                col.ind = "cos2",
+                gradient.cols = c("mistyrose", "#8B0000"),
+                repel = TRUE,
+                geom = "point",
+                title="PCA -Life expectation data"
+)
+```
+
+This last graph is the one who allow us to make the best interpretation. Basically is the same graph as before with the observations and the variables. However, this time each observation have a different color. More an observation is red more this observation has a $cos^2$ value closer to 1. This indicate that the observation strongly influences the principal components and is well represented in the PCA space. Instead the observation where the $cos^2$ value is closer to 0 are represented with a lighter red, which indicate that the observation has little influence representing the PCA space.
+
+It can be seen that the observations closer to the origin have lower $cos^2$ values, as they do not contribute significantly to the explanation of the variability of the first two PC. The farther an observation is from the origin, the higher its $cos^2$ value, meaning that these observations contribute more strongly to explaining the variability of the first two principal components.
+
+#### Eigenvalues
+
+The eigenvalues correspond to the amount of the variation explained by each principal component (PC).
+
+```{r 4}
+eig.val = get_eigenvalue(data_pca)
+eig.val
+```
+
+The result can be divided into three parts:
+
+-   **eigenvalue**, this is the most interesting information. The eigenvalue represents the amount of variance captured by each PC, an higher eigenvalue indicates that the corresponding PC explains more variability. according to the Kaiser criterion if the eigenvalue is greater than 1 then it means that his variable is significant and for this reason should be kept in the study. In this PCA analysis only PC1,PC2 and PC3 have an eigenvalue above 1. If it is observed the cumulative variance percentage of the first three PC it can be seen that these PC explain more than the 75% of the total variance.
+
+-   **variance percent**, as for the `summary(data_pca)` this part shows the percentage of total variance explained by each PC
+
+-   **cumulative variance percent**, as for the `summary(data_pca)` this part shows the cumulative percentage of total variance explained by the first $n$ PC.
+
+```{r 4.1}
+fviz_eig(data_pca, addlabels = TRUE)
+```
+
+The graph above just gives us a clearer view of which PC explains the most variance. It can be confirmed that keeping only the first 3/4 PC in the study allows a high amount of variance to be reproduced.
+
+#### Principal Component Analysis Results for variables
+
+```{r 5}
+var=get_pca_var(data_pca)
+var
+```
+
+The command `var=get_pca_var(data_pca)` wants to extract the information about the variables in the PCA results. The command `var` gives access to all the detailed PCA metrics related to the variables.
+
+```{r 5.1}
+round(var$cor,2)
+```
+
+The first output to be analyzed is the correlation between variables and PCA dimensions. This output (`var$cor`) shows how strongly each variable is correlated with each principal component, helping to identify which variables are most associated with the PC. For example, the variable Life.expectancy is strongly positively correlated with PC1, while it shows little to no correlation with PC7 and PC9.
+
+```{r 5.1.1}
+corrplot(var$cor, is.corr = FALSE)
+```
+
+To make these results more interpretable, we can create a correlation plot. This corrplot graph visualizes the strength of correlation between variables and PCA dimensions. Larger and darker circles indicate stronger correlations, showing which variables are most aligned with specific PC. For instance, the percentage.expenditure variable shows a strong correlation only with PC3, suggesting that this variable only influences this component. Most variables exhibit strong correlations with the first two PCs, while Percentage.expenditure uniquely correlates with PC3. These results support the conclusion that the first three PCs explain most of the variability in the dataset, as previously assumed.
+
+Let's move on the contrib. analysis.
+
+```{r 5.2}
+round(var$contrib,2)
+```
+
+```{r 5.2.1}
+corrplot(var$contrib,is.corr = F)
+```
+
+The `var$contrib` shows how much each variable contributes to explaining the variability captured by a given dimension. An higher value indicate that the variable have a more significant role in the defining the PC. The main goal of this corrplot is to visualize the contribution of variables to the PCA dimension. An example could be done on "Percentage.expenditure" where the contribute on Dim.3 is dark brown suggesting that this variable defines uniquely this dimension.
+
+Let's analyze the contribution of variable for the first three PC.
+
+```{r 5.2.2}
+fviz_contrib(data_pca, choice = "var", axes = 1)
+```
+
+Each bar represent the contribution of a variable to the first PC. Variable with taller bar have an higher influence on the first PC. The red line represent the expected average contribution if all variable contributed equally for the first PC, so since we have got 9 variables it is expected an average value around 12%. This plot has seven out nine variable who reach this values, "Life.expectancy", "Adult.mortality", "under.five.deaths", "HIV:AIDS", "infant.deaths", "Polio" and "Diphtheria". A similar comment could be done also for the next two graphs which show the contribution of variables for the second and third variable.
+
+```{r 5.2.3}
+fviz_contrib(data_pca, choice = "var", axes = 2)
+```
+
+```{r 5.2.4}
+fviz_contrib(data_pca, choice = "var", axes = 3)
+```
+
+```{r 5.2.5}
+fviz_contrib(data_pca, choice = "var", axes = 1:3)
+```
+
+Finally, the last graph shows the contribution of variables considering all the first three PC. It is clear that only 5 variable out of 9 explain more than the average value for the first three PC.
+
+Let's now end this part of the analysis on the $cos^2$ part
+
+```{r 5.3}
+round(var$cos2,2)
+```
+
+The cos2 shows how much a variable is good represented by a PC, in this case we can immediately see that the last Dim. have really low values. However let's proceed creating some graph to make an easier interpretation.
+
+```{r 5.3.1}
+fviz_cos2(data_pca, choice = "var", axes = 1)
+```
+
+As was done previously for the `var$contrib` also now we proceed using some bar plots. The first plot gives the values of the $cos^2$ values of variables for the first PC. An value of $cos^2$ close to 1 indicate that the variable is represented in a good way by the PC, however a low $cos^2$ value suggest that the variable is not represented enough in the PC. In this graph we have:
+
+-   Variables such as "Life.expectancy" and "Adult.Mortality" with a $cos^2$ value above 0.5, which means that these variables are the best represented by the first PC
+
+-   Variables such as "under.five.deaths", "HIV/AIDS", "Polio", and "Diphtheria" with value between 0.25 and 0.5 meaning that these variables have a significantly contribution by the first PC.
+
+-   Variables such as "Measles" and "percentage.expenditure" with value lower than 0.25. Those variables are not represented by the first PC.
+
+A similar comment could be done also for the next two graphs which show how much the variables are represented by the second and third PC .
+
+```{r 5.3.2}
+fviz_cos2(data_pca, choice = "var", axes = 2)
+```
+
+```{r 5.3.3}
+fviz_cos2(data_pca, choice = "var", axes = 3)
+```
+
+```{r 5.3.4}
+fviz_cos2(data_pca, choice = "var", axes = 1:3)
+```
+
+This last graph shows how the cos\^2 values of the first three PCs for individual variables. The cos2 measures how well an individual or variable is represented by the selected principal components.
+
+-   If it is \>0.8 then it can be called well represented. In this case we are talking about the variables “infant.deaths,” “under.five.deaths,” and “percentage.expenditure”.
+
+-   If it has a value \<0.5 then it is not represented by PCAs, in which case no variable has such a low value. However, if in our study the third PC would not have been considered as well, but only the first two the variable “percentage.expenditure” surely would have a value less than 50%.
+
+```{r 6}
+nrow(var$coord)
+fviz_nbclust(var$coord, kmeans, method = "wss", k.max = nrow(var$coord) - 1) +
+  ggtitle("Elbow method")
+
+res.km = kmeans(var$coord, centers = 3, nstart = 25)
+grp = as.factor(res.km$cluster)
+
+fviz_pca_var(data_pca, col.var = grp,
+             palette = c("red","blue","green"),
+             legend.title = "Cluster",
+             labelsize = 2,
+             repel=T
+)
+```
+
+The graph shows me the variables represented as vectors, with the length of the vector indicating the importance of the variable and the direction representing the correlation with the principal components (first and second PCs). The three groups go in different directions, which suggests that the groups of variables have different correlations with the first principal components. Let's make a comment over the three groups:
+
+-   **Red group**, in this group we have variables such as "polio", "Life.expectancy", "Diphtheria" and "percentage.expenditure". These are the variables who are strongly connected with the first PC1 in a positive way and strongly connected with PC2 in a negative way. However the length of the "percentage.expenditure" arrow is really short meaning that this variable is not important for the first two PC.
+
+-   **Blue group**, in this group we have variables such as "HIV/AIDS" and "Adult.mortality". Those are the variables that are strongly connected with PC2 in a positive way and strongly connected with PC1 in a negative way.
+
+-   **Green group**, in this last group we have variables such as "under.five.deaths", "infant.deaths" and "meanies". These variables are strongly connected with PC1 and PC2 in a negative way.
+
+In conclusion it can be said each variable is strongly connected with PC1 and PC2 expect for "percentage.expenditure".
+
+#### Principal Component Analysis Results for individuals
+
+Similar work to the one just done can also be done for individuals, the observations.
+
+```{r 7}
+ind = get_pca_ind(data_pca)
+ind
+```
+
+```{r 7.1}
+res.km = kmeans(ind$coord, centers = 3, nstart = 25)
+grp2 = as.factor(res.km$cluster)
+fviz_pca_ind(data_pca,
+             geom.ind = "point", # display only points (no text)
+             col.ind = grp2, # color by groups
+             palette = c("red", "blue", "green"),
+             addEllipses = TRUE, # concentration ellipses
+             legend.title = "Groups"
+)
+```
+
+The individuals are categorized into three groups:
+
+-   **Group 1** (red circle), is one observation isolated in the lower left corner of the graph.
+
+-   **Group 2**(blue triangles), this group is close the the group 3, but represent more the observation with a strong correlation with PC1
+
+-   **Group 3** (green squares), this group is close to the group 2, but this one represent more the observation with a strong correlation with PC2
+
+Group 3 has the largest spread, indicating the highest variability. Group 1 has the smallest ellipse, which suggest more homogeneity, but since group 1 appears to be only one observation, it can be said that it is actually group 2 that has the greatest homogeneity. Let's now proceed creating a graph which includes also the variables.
+
+```{r 7.2}
+fviz_pca_biplot(data_pca,
+                repel=T,
+                geom="point",
+                col.var = "darkblue",
+                col.ind = grp2,
+                palette = c("red", "blue", "green"),
+                addEllipses = T
+)
+```
+
+Let's make a cross analysis by also considering the variables:
+
+-   **Group 1** (red circle), this group shows to be influenced by "under.five.deaths", "infant.deaths" and "meanies".
+
+-   **Group 2** (blue triangles), this group is influenced by "polio", "Life.expectancy", "Diphtheria" .
+
+-   **Group 3** (green squares), this group appears to be influenced the most by "HIV/AIDS" and "Adult.mortality"
+
+#### Conclusion
+
+In conclusion it can be said that the number of PC to represent the most variability could be around 3 or 4, which represent more than the 75% of the variability. Based on the first two PC the data set could be divided into three cluster, if we analyze the variables. If we continue the analysis of the clusters identified during the variable analysis, we can say that Cluster 1 indicates moderate health outcomes, while Clusters 2 and 3 reflect poorer health outcomes, however, Cluster 2 is associated with adults, and Cluster 3 is related to children. Looking at the biplot in the individual part we can say that only few states have some serious health problems on the children, while most have health problems on adults.
+
+## **Part B - Starbucks Customer Survey**
+
+### Introduction & EDA
+
+The second part is dedicated to the data set called "Starbucks customer survey".
+
+```{r 8}
+Star=read.csv("Starbucks satisfactory survey encode cleaned.csv")
+head(Star)
+```
+
+The data set is made by 33 variables:
+
+1.  **Id**, a numerical id.
+
+2.  **Gender**, 0-male and 1-female.
+
+3.  **Age**, below 20=0, from 20 to 29=1, from 30 to 39=2, 40 and above=3.
+
+4.  **Status**, 0 for students, 1 for self employed, 2 for employed and 3 for housewife.
+
+5.  **Income**, 0 less than RM25.000, 1 RM25.000 – RM50.000, 2 RM50.000 – RM100.000, 3 RM100.000 – RM150.000, 4 More than.
+
+6.  **visitNo**, is the visit number. 0 - daily, 1-weekly, 2-monthly and 3-never.
+
+7.  **method**, 0 dine in, 1drive-thru, 2 take away, 3never,4 others.
+
+8.  **timeSpend**, below 30 min = 0, 30 min-1h = 1, 1h-2h=2, 2h to 3h=3, more than 3h=4.
+
+9.  **location**, 0 within 1km, 1 within 1km-3km, 2 more than 3km.
+
+10. **membershipCard**, 0 yes - 1 no.
+
+11. **itemPurchaseCoffee**, 0 yes - 1 no.
+
+12. **itempurchaseCold**, 0 yes - 1 no.
+
+13. **itemPurchasePastries**, 0 yes - 1 no.
+
+14. **itemPurchaseJuices**, 0 yes - 1 no.
+
+15. **itemPurchaseSandwiches**, 0 yes - 1 no.
+
+16. **itemPurchaseOthers**, 0 yes - 1 no.
+
+17. **spendPurchase**, 0 = zero, 1 = Less than RM20, 2 = RM 20 to RM40, 3 = more than RM40.
+
+18. **productRate**, scaled 1-5 where 1 is very bad and 5 excellent.
+
+19. **priceRate**, scaled 1-5 where 1 is very bad and 5 excellent.
+
+20. **promoRate**, scaled 1-5 where 1 is very bad and 5 excellent.
+
+21. **ambianceRate**, scaled 1-5 where 1 is very bad and 5 excellent.
+
+22. **wifiRate**, scaled 1-5 where 1 is very bad and 5 excellent.
+
+23. **serviceRate**, scaled 1-5 where 1 is very bad and 5 excellent.
+
+24. **chooseRate**, scaled 1-5 where 1 is very bad and 5 excellent.
+
+25. **promoMethodApp**, where 0 yes - 1 no.
+
+26. **promoMethodSoc**, where 0 yes - 1 no.
+
+27. **promoMethodEmail**, where 0 yes - 1 no.
+
+28. **promoMethodDeal**, where 0 yes - 1 no.
+
+29. **promoMethodFriend**, where 0 yes - 1 no.
+
+30. **promoMethodDisplay**, where 0 yes - 1 no.
+
+31. **promoMethodBillboard**, where 0 yes -1 no.
+
+32. **promoMethodOthers**, where 0 yes - 1 no.
+
+33. **loyal**, where 0 yes - 1 no.
+
+For the PCA analysis only variables that are numerical need to be considered.
+
+```{r 8.1}
+plot_intro(Star)
+```
+
+There are less consideration than the graphic we have made for part A. There are no categorical variables that must be deleted, cause the graphic give us 100% for continuous columns. Moreover the complete rows is 100% meaning in this data set there isn't even any missing values problem. Let's check if there are some variables with variability equal to 0.
+
+```{r 8.2}
+zero_var_cols_star <- Star %>%
+  summarise(across(everything(), ~ var(., na.rm = TRUE) == 0)) %>%
+  select(where(~ .)) %>%
+  names()
+
+
+if (length(zero_var_cols_star) > 0) {
+  cat("Variables with variability equal to 0 are:\n", paste(zero_var_cols, collapse = ", "))
+} else {
+  cat("There are no variables with variability equal to 0 in the dataset.")
+}
+```
+
+There is a total of 13 variables where the variability is equal to 0. All these variables must be deleted cause they do not provide any useful information for the analysis.
+
+```{r 8.3}
+nomi_variabili_da_eliminare = c("itemPurchaseCoffee", "itempurchaseCold", "itemPurchasePastries", 
+                                "itemPurchaseJuices", "itemPurchaseSandwiches", "itemPurchaseOthers", 
+                                "promoMethodApp", "promoMethodSoc", "promoMethodEmail", "promoMethodDeal", 
+                                "promoMethodFriend", "promoMethodDisplay", "promoMethodBillboard")
+
+StarFinal = Star %>% select(-c(nomi_variabili_da_eliminare))
+
+summary(StarFinal)
+
+```
+
+The data set passed from 33 to 20 variables. An important tool in the statistics is the summary, let's analyze few variables, since the interpretation is similar for each one:
+
+-   **Gender**, as it was said in the introduction we have 0 if it is a male and 1 if it is a female. For the gender variable the most important information we can get from the summary is that mean value is 0.5221. This information means that in the study there is a 52.21% of people which are female and 47.79% of male.
+
+-   **serviceRate,** this variable shows the service rate scaled 1-5 where 1 is very bad and 5 excellent. However the min in 2 and the max is 5. The most important variable here is the mean which is 3.814. The mean value can be considered really good and the Starbucks service could be considered one of the point of strength.
+
+    Let's now analyze some quartiles. The first quartile of service rate is 3, meaning that 25% of the people thinks that the service is low-mid. The second quartile, represented by the median, meaning that 50% of the people consider the customer service mid-high. The third quartile value is 4. It can be said that almost a 60% of costumers thinks that the service value is 4, becoming this a point of strong for starbucks shops.
+
+Finally before starting with the PCA analyze, it is important to make the correlation plot and correlation matrix that give us the correlation values between the variables.
+
+```{r 8.4}
+corr_matrix_star=cor(StarFinal, use = "complete.obs") 
+head(corr_matrix_star)
+```
+
+```{r 8.5}
+corrplot.mixed(corr_matrix_star,lower='number',upper="circle", tl.pos="lt", tl.col="black",
+               tl.srt=45, diag="u", title='Correlation plot')
+```
+
+In this case, in the dataset, there is no particularly strong correlation, either positive or negative. However, this helps to avoid the phenomenon of multicollinearity, which occurs when variables explain the same part of a phenomenon.
+
+It is possible to create a cycle that give all the information for high or low correlation, an example of this command is:
+
+```{r 8.5.1}
+corr_WF_M=corr_matrix_star["wifiRate", "serviceRate"]
+if (abs(corr_WF_M) <0.5) {
+  print("wife rate and service rate have a weak or no linear relationship.")
+} else {
+  print("wife rate and service rate have moderately or strongly relationship")
+}
+```
+
+### PCA ANALYSIS
+
+Let's start with the PCA analysis
+
+```{r 9}
+summary(prcomp(StarFinal))
+```
+
+It is clear also this time that the PC1 is the one who explain the most variability almost the 100% (0.99). However it is necessary to standardize the data to make a more opportunity analysis.
+
+```{r 9.1}
+Star_scaled=scale(StarFinal)
+Star_pca=prcomp(Star_scaled)
+summary(Star_pca)
+```
+
+The result gives:
+
+-   **Standard deviation**, this information shows the standard deviation of each principal component (PC). The standard deviation represents the amount of variation captured by each PC.
+
+-   **Proportion of variance**, this row shows the proportion of the total variance explained by each PC. The first PC explain 18.87% of variance and the last one explains only a 1.25%.
+
+-   **Cumulative proportion**, this last row is a simple sum of the proportion of variance. In this way it is clear that the first 10 PC explain more then 75% of the variance.
+
+Other two important PCA tools are:
+
+```{r 9.2}
+Star_pca$rotation
+```
+
+This shows the contribute of each variable for the building of the PC. If we analyze the first PC it can be seen that some variable have higher value then other such as "product rate", "price rate", "service rate", "choose rate" and "loyal". In conclusion it can be said that the first PC is correlated with almost all the "rate" variables and in addition also to the loyal variable.
+
+```{r 9.3}
+head(Star_pca$x)
+```
+
+Basically, this is the same command of `x$rotation`, but in this case it is analyzed how much each observation explain of the PC.
+
+```{r 9.4}
+fviz_pca_ind(Star_pca, title="PCA - Starbucks satisfactory survey ")
+```
+
+The graph shows how each observation is distributed based on the first and second PC. Each point in the plot represent an observation of our data set. The x-axis represent the PC1, 18.8% of the variance is represented by this PC. The y-axis represent the PC2, 13.6% is the proportion of variance explained by this PC. Let's make a more clear graph which show also the relation between variables.
+
+```{r 9.5}
+fviz_pca_biplot(Star_pca, title="PCA - Starbucks satisfactory survey")
+```
+
+```{r 9.6}
+fviz_pca_biplot(Star_pca,
+                col.ind = "cos2",
+                gradient.cols = c("mistyrose", "#8B0000"),
+                repel = TRUE,
+                geom = "point",
+                title="PCA -Life expectation data"
+)
+```
+
+This last graph is the one who allow us to make the best interpretation. Basically is the same graph as before with observation and the variables. However, this time each observation have a different color. More an observation is red more this observation has a $cos^2$ value closer to 1. This indicate that the observation strongly influences the PC and is well represented in the PCA space. Instead the observation where the $cos^2$ values is closer to 0 are represented with a lighter red, which indicate that the observation has little influence representing the PCA space.
+
+It can be seen that the observation closer to the origin have lower $cos^2$ values, as they do not contribute significantly to the explanation of the variability of the first two PC. The farther an observation is from the origin, the higher his $cos^2$ value is, meaning that these observation contribute more strongly to explaining the variability of the first two PC.
+
+#### Eigenvalues
+
+The eigenvalues correspond to the amount of the variation explained by each principal component (PC).
+
+```{r 10}
+eig.val = get_eigenvalue(Star_pca)
+eig.val
+```
+
+The result can be divided into three parts:
+
+-   **Eigenvalue**. The eigenvalue represents the amount of variance captured by each PC, an higher eigenvalue indicates that the corresponding PC explains more variability. According to the Kaiser criterion only variables with eigenvalues over 1 are significant. In this PCA analysis the first 6 PC have an eigenvalue higher than 1. However if we look at the cumulative variance percent the first 6 PC explain almost 62% of the total variance, but we have to consider at least a 75% variance explained so the first 10 PC.
+
+-   **Variance percent**, as the `summary(Star_pca)` this part shows the percentage of total variance explained by each PC.
+
+-   **Cumulative variance percent**,as for the `summary(Star_pca)` this part shows the cumulative percentage of total variance explained by the first $n$ PC.
+
+```{r 10.1}
+fviz_eig(Star_pca, addlabels = TRUE)
+```
+
+The graph above just gives us a clear view of which PC explain the most variance.
+
+#### Principal Component Analysis Results for variables
+
+```{r 11}
+var_star=get_pca_var(Star_pca)
+var_star
+```
+
+The command `var_star=get_pca_var(Star_pca)` wants to extract the information about the variables in the PCA results. The command `var_star` gives access to all the detailed PCA metrics related to the variables
+
+```{r 11.1}
+round(var_star$cor,2)
+```
+
+As before the first output to be analyzed is the correlation between variables and PCA dimension. This output shows how strongly each variable is correlated with each PC, helping to identify which variables are most associated with the PC. Since there are many variables this work is harder and for this reason make a plot can give to us a clearer idea.
+
+```{r 11.2}
+corrplot(var_star$cor, is.corr = FALSE)
+```
+
+This corrplot graph visualizes the strength of correlation between variables and PCA dimension. Larger and darker circles indicate stronger correlations. As we had hypothesized after the 10th PC the correlations begin to be weaker. This supports our idea that the first 10 PC are critical in order to best explain my data set. Let analyze more precisely the first PC, that PC has a negative and strong correlation with the variables “product rate”, “price rate”, “ambiance rate”, “wife rate”, “service rate” and with “loyal” instead there is a strong positive correlation.
+
+Let's move on the contrib. analysis.
+
+```{r 11.3}
+round(var_star$contrib,2)
+```
+
+```{r 11.4}
+corrplot(var_star$contrib,is.corr = F)
+```
+
+The `var$contrib` shows how much each variable contributes to explain the variability captured bu a given dimension. AN higher value indicate that the variable have a more significant role in the definition of the PC. An example could be done on "location" where the contribute on Dim. 8 is dark brown suggesting that this variable defines uniquely this dimension.
+
+Let's analyze the contribution of variable for the first PC.
+
+```{r 11.5}
+fviz_contrib(Star_pca, choice = "var", axes = 1)
+```
+
+Each bar represent the contribution of variable to the first PC. Variable with taller bar have an higher influence on the first PC. The red line represent the expected average contribution if all variable contributed equally for the first PC, so since we have got 20 variables it is expected an average value around 5%. This plot has 7 clear variable that reach this values and 2 variable that are near this value.
+
+```{r 11.6}
+fviz_contrib(Star_pca, choice = "var", axes = 8 )
+```
+
+Let's take a look on the Dim. 8. As we already said the variable "location" is the variable which helps the most on the explanation of the Dim. 8 and this graph just confirm our hypothesis.
+
+```{r 11.7}
+fviz_contrib(Star_pca, choice = "var", axes = 1:10)
+```
+
+Let's take a look on the overall situation for the first 10 PC. It is clear that the 11 out 20 variable explains more than the average value for the first 10 PC.
+
+Let's end this part of the analysis on the $cos^2$ part.
+
+```{r 11.8}
+round(var_star$cos2,2)
+```
+
+The $cos^2$ shows how much a variable is good represented by a PC. As before using the table is difficult to know which are the variable good represented by the PC for this reason we proceed in the creation of some graphs.
+
+```{r 11.9}
+fviz_cos2(Star_pca, choice = "var", axes = 1)
+```
+
+The plot gives the values of the $cos^2$ values of variables for the first PC. An value of cos2 close to 1 indicate that the variable is represented in a good way by the PC, however a low $cos^2$ value suggest that the variable is not represented enough in the PC. In this graph we have do not have any $cos^2$ that is above 0.5. We have 7 variables which their $cos^2$ value surpasses the value of 0.25, and all others under this value. Since our study want to see if 10 PC are enough to explain the overall variation let's take a look on a graph considering 10 dimension.
+
+```{r 11.10}
+fviz_cos2(Star_pca, choice = "var", axes = 1:10)
+```
+
+This last graph shows how the $cos^2$ values of the first three PC for individual variables. The $cos^2$ measures how well an individual or variable is represented by a selected principal component.
+
+-   If it is \>0.8, than it can be called well represented. In this case only "id" and "promoMethodOthers" have a $cos^2$ value over 0.8.
+
+-   If it has a value 0.5 than it is not represented by PC. In this study there is no variable that has such a low value.
+
+```{r 11.11}
+nrow(var_star$coord)
+fviz_nbclust(var_star$coord, kmeans, method = "wss", k.max = nrow(var_star$coord) - 1) +
+  ggtitle("Elbow method")
+
+res.km = kmeans(var_star$coord, centers = 4, nstart = 25)
+grp = as.factor(res.km$cluster)
+
+fviz_pca_var(Star_pca, col.var = grp,
+             palette = c("red","blue","green", "purple"),
+             legend.title = "Cluster",
+             labelsize = 2,
+             repel=T
+)
+```
+
+The graph shows me the variables represented as vectors, with the length of the vector indicating the importance of the variable and the direction representing the correlation with the PC1 and PC2. The 4 groups go in different direction, which suggest that each group has different correlation with the first two principal components. Let's make a comment over the three groups:
+
+-   **Cluster 1 (red group)**, this group has variable such as "gender", "method" and "promoMethodOthers".
+
+-   **Cluster 2 (blue group)**, this group has variable such as "location", "membershipCard" or "visitNo". This suggests these are likely related to customer behavior or engagement.
+
+-   **Cluster 3 (green group)**, this group has variable such as "chooseRate", "priceRate", "productRate"... This cluster seems docusing on the product and service evaluations.
+
+-   **Cluster 4 (purple group)**, include variables such as "income", "age" or "status", which are more demographic and socio-economic factors.
+
+The blue group is positive correlated with the PC1, purple and green instead are negative correlated with PC1. The purple and green group however seems have different correlation for the PC2, while the purple is positive correlated the green is negative correlated. Finally the red group seems is not correlated to the PC1 and negative correlated with PC2.
+
+#### Principal Component Analysis Results for individuals
+
+Similar work to the one just done can also be done for individuals, the observations.
+
+```{r 12}
+ind_star = get_pca_ind(Star_pca)
+ind_star
+```
+
+```{r 12.2}
+res.km = kmeans(ind_star$coord, centers = 3, nstart = 25)
+grp2_star = as.factor(res.km$cluster)
+fviz_pca_ind(Star_pca,
+             geom.ind = "point", 
+             col.ind = grp2_star, 
+             palette = c("red", "blue", "green"),
+             addEllipses = TRUE, 
+             legend.title = "Groups"
+)
+```
+
+The individuals are categorized into three groups:
+
+-   **Group 1 (red circle)**, this group is situated in the lower-left part of the graph. Is negative correlated with PC1 and PC2.
+
+-   **Group 2 (blue triangles)**, this groups shows a positive correlation with the PC1 and it sedoesn't have a negative or positive correlation with PC2.
+
+-   **Group 3 (green squares)**, this groups occupies the upper left part of the graph. It is positive correlated with PC2 and negative correlated with PC1.
+
+All the groups have a large spread, indicating an high variability. Let's now proceed creating a graph which includes also the variables
+
+```{r 12.3}
+fviz_pca_biplot(Star_pca,
+                repel=T,
+                geom="point",
+                col.var = "darkblue",
+                col.ind = grp2_star,
+                palette = c("red", "blue", "green"),
+                addEllipses = T
+)
+
+```
+
+Let's make a cross analysis by also considering the variables:
+
+-   **Group 1 (red circle)**, this cluster is about the customer satisfaction and product evaluation.
+
+-   **Group 2 (blue triangles)**, this group is about the financial and demographic factors.
+
+-   **Group 3 (green squares)**, this last group suggests is related to customer behavior or engagement.
+
+#### Conclusion
+
+In conclusion it can be said the number of PC to represent the most variability could be around 10, which represent more than the 75% of the variability. Based on the first two PC the data set could be divided into three, if we analyze the individuals. If we continue the analysis of the cluster identified during the individual analysis , we can say cluster 1 indicates the customer satisfaction and product evaluation. Cluster 2 is about the financial and demographic factors. Cluster 3 suggests is related to customer behavior or engagement.
