@@ -26,7 +26,7 @@ The study compared three different clustering approaches, using the Cophenetic c
 
 ## 📂 Repository Structure
 * `Cluster analysis.R`: The R script containing all the code.
-* `Cluster-analyze.Rmd`: The R Markdown script containing the full pipeline and methodology.
+* `Cluster analyze.Rmd`: The R Markdown script containing the full pipeline and methodology.
 * `Cluster-analyze.pdf`: The final technical report.
 * `houseprice.csv`: The dataset containing real estate features and prices.
 
