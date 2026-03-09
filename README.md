@@ -10,7 +10,7 @@ The core objective of this curriculum was to master the end-to-end data mining p
 
 This repository is organized into four distinct modules, each exploring a different domain and analytical technique:
 
-### 1. [📊 HR Analytics: Data Mining & Insights](./Human-Resources-Analysis)
+### 1. [📊 HR Analytics: Data Mining & Insights](./Final project - Human Resources)
 * **Focus:** Workforce performance and employee retention analysis.
 * **Key Techniques:** EDA, Principal Component Analysis (PCA), and Hierarchical Clustering.
 * **Highlight:** Developed a classification model predicting employee terminations with a **97.78% accuracy rate**.
