@@ -23,7 +23,7 @@ The analysis focuses on identifying the key drivers of global happiness:
 
 ## 📂 Repository Structure
 * `Wold happiness analysis.R`: Clean R script for the analytical pipeline.
-* `World-happiness-analysis.Rmd`: The complete R Markdown script with data processing and visualizations.
+* `World happiness analysis.Rmd`: The complete R Markdown script with data processing and visualizations.
 * `World-happiness-analysis.pdf`: The final technical report.
 * `world-happiness-report-2021.csv`: Historical data for comparison.
 * `World-happiness-report-updated_2024.csv`: The most recent dataset analyzed.
