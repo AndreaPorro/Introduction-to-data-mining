@@ -1,0 +1,1078 @@
+---
+title: "Introduction to data mining"
+author: "PorroAndrea"
+date: "2025-01-09"
+output: pdf_document
+---
+
+# Individual project for introduction to data mining
+
+In this final project of Introduction to Data mining for Business Intelligence i have analyzed a data-set called "HRDataset_v14.csv". The data-set is about the human resource concerning business companies.
+
+## Introduction
+
+The first part is dedicated to the introduction, where I understand the meaning of each variables before the start of the analyze.
+
+```{r 1.0}
+data=read.csv("HRDataset_v14.csv")
+head(data)
+```
+
+As it can be seen, there are 36 variables which are numerical and text. Let's understand the meaning of each one of them:
+
+1.  **Employee_Name:** employee’s full name.
+
+2.  **EmpID:** employee ID is unique to each employee.
+
+3.  **MarriedID:** is the person married (1 or 0 for yes or no).
+
+4.  **MaritalStatusID:** marital status code that matches the text field MaritalDesc.
+
+5.  **GenderID:** gender code that matches the text field Sex (1 for male and 0 for female).
+
+6.  **EmpStatusID**: employement status code that matches thext field EmploymentStatus.
+
+7.  **DeptID**: Department ID code that matches the department the employee works in.
+
+8.  **PerfScoreID**: performance score code that matches the employee's most recent performance score.
+
+9.  **FromDiversityJobFairID**: was the employee sourced from the diversity job fair? (1 for yes and 0 for no)
+
+10. **Salary**: the person's yearly salary in U.S. dollar.
+
+11. **Termd**: has this employee been terminated? (1 for yes or 0 for no).
+
+12. **PositionID**: an integer indicating the person's position.
+
+13. **Position**: The text name/title of the position the person has.
+
+14. **State**: the state that the person lives in.
+
+15. **Zip**: the zip code for the employee.
+
+16. **DOB**: the date of birth for the employee.
+
+17. **Sex**: if the employee is a male or female.
+
+18. **MaritalDesc**: the marital status of the person (divorced, single, widowed, separated, etc)
+
+19. **CitizenDesc**: label for whether the person is a citizen or eligible non-citizen.
+
+20. **HispanicLatino**: Yes or no field for whether the employee is hispanic or latino.
+
+21. **RaceDesc**: description of the race the person identifies with.
+
+22. **DateofHire**: date the person was hired.
+
+23. **DateofTermination**: date the person was terminated
+
+24. **TermReason**: a description for why the person was terminated.
+
+25. **EmploymentStatus**: a description of the person's employment status. Anyone who is currently working full time will be "Active"
+
+26. **Department**: name of the department that the person works in.
+
+27. **ManagerName**: the name of the person's immediate manager.
+
+28. **ManagerID**: a unique indentifier for each manager.
+
+29. **RecruitmentSource**: the name of the recruitment source where the employee was recruited from.
+
+30. **PerformanceScore**: the performance score as text.
+
+31. **EngagementSurvey**: results from the last engagement survey, managed by the external partner.
+
+32. **EmpSatisfaction**: a basic satisfaction score between 1 and 5, as reported on a recent employee satisfaction survey.
+
+33. **SpecialProjectsCount**: the number of special project that the employee worked on during the last 6 months.
+
+34. **LastPerformanceReview_Date**: the most recent date of the person's last performance review.
+
+35. **DaysLateLast30**: the number of times that the employee was late to work during the last 30 days.
+
+36. **Absences**: the number of times the employee was absent from work.
+
+As can be seen many variables have the same meaning, but they are expressed numerically and in text form. An example might be gender. With the variabil “Sex” you have M for male or F for female, instead GenderID indicates with 1 male and with 0 female making the variable usable for possible more detailed analysis such as for PCA or Cluster analysis.
+
+## EDA - **Exploratory Data Analysis**
+
+EDA is an important statistical approach used to better understand the structure of the dataset. In this part, we will check for any missing values (NA), the types of variables, and create some initial graphs. After reviewing this information, I posed some questions to myself.
+
+First of all let's take a look to the dimension of the data-set where the work will be done.
+
+```{r 2.0}
+dim(data)
+```
+
+The data set under study is not very large, more precisely it contains 311 observations and 36 variables. Let's do some further analysis:\
+
+```{r 2.1}
+library(DataExplorer)
+plot_intro(data)
+```
+
+There are several consideration to do seeing this graph. The graph could be divided into three parts:
+
+-   **Columns,** the red part of our graph is focused on our columns. This divides the columns into two categories: numeric variables and categorical variables. From what it can be seen from the graph, the data-set have a 50% of categorical variable and a 50% of numeric variable, which mean that we have 18 categorical variables and 18 numeric variables..
+
+-   **Row**, the blue part of our graph is focused on the rows. Differently from the previous part regarding the columns, in this portion there is only one graph bar. The complete row is equal to 87.42%, which mean that considering all the rows of the data-set there are 12.58% rows with missing values. Considering the NA is important for the analysis and for this work the variables with missing values will be deleted.
+
+-   **Missing observation**, the last part that is analyzed is about the missing values (NA). Analyzing the missing values is extremely important because knowing the presence of NA allows taking precautions during the study. The data-set about human resources has 0.071% of missing values (very low value, but to be taken to 0).
+
+Since the study of missing values is so important the analysis propose another graph about the NA
+
+```{r 2.2}
+plot_missing(data)
+```
+
+The graph above gives to the project a clear vision of which variables have more missing values and which variables have less NA. In this graph we have just **green part**. In this part there are all the variables where the NA is lower than 5% and for this reason it could be considered acceptable. In this specific case the variables is just one, "ManagerID", which have a 2.57% of missing values. In this study it was decided to omit those rows that have missing values, so I proceed with this method. However, there are many other methods such as substitution by the median or mean value.
+
+```{r 2.3}
+data = na.omit(data)
+plot_intro(data)
+```
+
+Another really important tool is the summary. This command allows to know important information for each variable. If the variables are numerical the command will print:
+
+-   **The minimum**, that is the lowest value.
+
+-   **The first quartile**, means that the 25% of my observations reach up to the value of this quartile.
+
+-   **The median**, this is the central value. In addition the median represent also the second quartile meaning that the 50% of my observations reach up to the value of this quartile.
+
+-   The mean, that is the average value.
+
+-   The third quartile, means that the 75% of my observations reach up to the value of this quartile.
+
+-   The maximum, the highest value for the variable.
+
+-   NA’s, the number of missing values for the variable. If the variable hasn’t any NA than there will not be this voice.
+
+```{r 2.4}
+summary(data)
+```
+
+The first variable shown using this command is "Employee_Name", which is a categorical variable. The command provides to us only the length, which is 303 and both the class and the mode return to us "character".
+
+Let's move on the analysis of few numerical variables, since the interpretation is similar for each one:
+
+-   **SALARY**
+
+    As it is known this variables refers to a person's yearly salary in U.S. dollar. It is discovered that the lowest value is 45.046 and the highest is 250.000, which mean that there is a difference of 204.954. The average salary is 69.292. Interestingly the mean is higher than the median, suggesting that the distribution might have a positive skew, meaning some people have an high salary, however most of people have a lower salary.\
+    \
+    Another important point is the variability. As it was said the difference between the lowest and highest value is 204.954, meaning an high variability for this variable.
+
+    Let's now analyze some quartiles. The first quartile of Salary is 55.633, which mean that 25% of the salary is lower than this value. The second quartile, represented by the median is 62.910, meaning that 50% of the salary is lower then 63k. The third quartile value is 72.331. People with a values higher than this have an high salary
+
+    In conclusion it can be said that most people do not earn particularly much, however, some individuals do earn a lot thus making the value of the average particularly high.\
+    \
+    Let's take a look on the density plot of this variable:
+
+    ```{r 2.4.1.1}
+    library(ggplot2)
+
+    ggplot(data, aes(x = Salary)) +
+      geom_density(fill = "lightblue", alpha = 0.5) + 
+      geom_vline(aes(xintercept = mean(Salary, na.rm = TRUE)), 
+                 color = "red", linetype = "dashed", linewidth = 1) + 
+      geom_vline(aes(xintercept = median(Salary, na.rm = TRUE)), 
+                 color = "blue", linetype = "dashed", linewidth = 1) + 
+      labs(title = "Density Plot of Salary", 
+           x = "Salary", 
+           y = "Density") +
+      theme_minimal()
+    ```
+
+    The graph confirms the theory that most people do not have very high wages, however, the presence of high earners makes the value of the mean greater than that of the median.
+
+-   **Gender ID**
+
+    Let us now give an analysis to the GenderID variable. This variable is a numeric variable that maps back to the variable “Sex” where with a value of 0 refers to a female, and with a value of 1 to a male. In this variable, the most important information is about the mean, which helps us understand whether there are more female or male employees in the data set.
+
+    The value of the average is 0.4356, which means that in our study we have 43.56% male employees and 56.44% female employees. This means that the majority of employees are female.
+
+    ```{r 2.4.2.1}
+    ggplot(data, aes(x = Sex)) +
+      geom_bar(fill = "skyblue", color = "black") +
+      labs(title = "Gender Distribution", 
+           x = "Gender", 
+           y = "Count") +
+      theme_minimal()
+    ```
+
+-   **Perf Score ID**
+
+    The last variable on which we will delve into the study is PerfScoreID. As before, we start by analyzing the lowest and highest value of this variable. We have that the lowest value corresponds to 1, while the highest value corresponds to 4. We then assume that the values range from 1 to 4. The first quartile corresponds to 3, so 25% of the workers have as PerfScoreID a value of 1 or 2 (thus not sufficing since the highest is 4). The second quartile has a value of 3 as for the third, meaning that most have a value of 3. The value of the mean is precisely equal to 2.974. Let us now take a look at the graph we create so as to make the ideas clearer
+
+    ```{r 2.4.3.1}
+    ggplot(data, aes(x = PerfScoreID)) +
+      geom_bar(fill = "skyblue", color = "black") +
+      labs(title = "Perf Score Distribution", 
+           x = "Perf Score", 
+           y = "Count") +
+      theme_minimal()
+    ```
+
+Let us now proceed with the analysis of variability and cardinality. More precisely at the statistical level those variables that have a variability of 0 must be eliminated as they are futile for the purpose of the study. This work, however, can be done only for those variables of numerical type. For categorical type variables, on the other hand, one must focus on cardinality. Variables that have a cardinality equal to the number of observations are futile at statistical levels because each observation has different value of that variable and therefore cannot be used. In our specific case, we decided to consider as high cardinality those variables that have a value greater than 200.
+
+```{r 2.3.1.10}
+library(dplyr)
+zero_var_cols <- data %>%
+  select(where(is.numeric)) %>%
+  summarise(across(everything(), ~ var(., na.rm = TRUE) == 0)) %>%
+  select(where(~ .)) %>%
+  names()
+
+if (length(zero_var_cols) > 0) {
+  cat("Variables with variability equal to 0:\n", paste(zero_var_cols, collapse = ", "), "\n")
+} else {
+  cat("There aren't any variables with variability equal to 0.\n")
+}
+```
+
+```{r 2.3.2.10}
+library(tidyr)
+high_cardinality_vars <- data %>%
+  select(where(~ is.factor(.) || is.character(.))) %>%
+  summarise(across(everything(), ~ n_distinct(.))) %>%
+  pivot_longer(cols = everything(), names_to = "variable", values_to = "cardinality") %>%
+  filter(cardinality > 200) %>%
+  pull(variable) 
+
+if (length(high_cardinality_vars) > 0) {
+  cat("These variables have high cardinality and must be deleted from the study:\n", 
+      paste(high_cardinality_vars, collapse = ", "), "\n")
+} else {
+  cat("No variables have high cardinality.\n")
+}
+```
+
+From the result obtained, none of the numerical variables has a variability of 0; however, as for the categorical variables, two of them are found to have high cardinality. More precisely, they are the Employee_Name and DOB variables. These variables are nothing but the names of the employees and their date of birth, so they will be eliminated from the study as they are futile information. It is also important to eliminate EmpID that refers to the name of employees.
+
+```{r 2.3.3.10}
+FinalData <- data %>%
+  select(-Employee_Name, -DOB)
+```
+
+```{r 2.3.4.40}
+FinalData <- FinalData %>%
+  select(-EmpID)
+```
+
+Another key point to analyze for statistics is correlation, in our case I want to create a graph that makes the results clearer.
+
+```{r 2.4.1.40}
+Data_Num = FinalData %>% select_if(is.numeric)
+corr_matrix = cor(Data_Num, use='complete.obs')
+head(corr_matrix)
+```
+
+```{r 2.4.2.40}
+library(corrplot)
+corrplot.mixed(corr_matrix, lower='number', upper='circle', tl.pos="lt",
+               tl.col="black", tl.srt=45, diag='u', title='Correlation plot')
+```
+
+Let's focus our attention to the upper part of the graph, which can be divided into three distinct sections:
+
+-   The first section is where the bubble are dark blue. If the correlation between two variables is represented by a blue bubble, it means the correlation is positive. In the study, it can be seen that there are around 5 bubble where the correlation is medium to high, which is evident also from the size of the bubbles. The larger the circle is, the higher the correlation of the variables is. The highest correlation is between "EmpStatusID" and "Termd" with a value of 0.9519.
+
+-   The second section contains the red bubbles. A red bubble indicates a negative correlation. In the study there are around 9 variables that show medium to high negative correlation. An example could be the relation between "DeptID" and "SpecialProjectsCount", where the correlation is equal to -0.78.
+
+-   The third section contains bubbles that are light blue and light red. If a bubble has one of these colors, it indicates that the correlation is very low or even nonexistent.
+
+It is possible to create a cycle that give all the information for high or low correlation, an example of this command is:
+
+```{r 2.4.3.40}
+corr_EMP_TermD=corr_matrix["EmpStatusID", "Termd"]
+if (abs(corr_EMP_TermD) < 0.5) {
+  cat("There is a weak or no linear relationship. \n")
+} else {
+  cat("There is a moderately or strongly correlation. \n")
+}
+```
+
+Finally, we have a graph that encapsulates many observations made throughout the EDA
+
+```{r 2.5}
+library(psych)
+pairs.panels(Data_Num)
+```
+
+This graph results can be divided:
+
+-   At the top the correlation.
+
+-   On the main diagonal the distribution of the variable
+
+-   In the lower part the scatterplot between the variables.
+
+## Questions I asked to myself
+
+### There is any relationship between salary and special project?
+
+The first question we asked was whether there is a relationship between a person's salary and the special projects they do. As we can already see from the correlation graph the two variables have a correlation of 0.51, however I proceed to create a scatterplot to make the ideas clearer.
+
+```{r 3.1.0}
+ggplot(FinalData, aes(x = SpecialProjectsCount, y = Salary)) +
+  geom_point(color = "blue", size = 2) + 
+  geom_smooth(method = "lm", color = "red", se = FALSE) + 
+  labs(title = "Scatterplot with Regression Line",
+       x = "Special Projects Count",
+       y = "Salary") +
+  theme_minimal()
+```
+
+As can be seen from the graph created and the regression line, we have that the more special projects a person completes, the higher that person's salary will be. However, in creating this chart, I wondered if it was possible that special projects are mainly done by certain departments over others. To better understand this doubt I then proceed to divide the observations into different colors based on their department.
+
+```{r 3.1.1}
+ggplot(FinalData, aes(x = SpecialProjectsCount, y = Salary, color = as.factor(DeptID))) +
+  geom_point(size = 2) + 
+  geom_smooth(method = "lm", color = "red", se = FALSE) + 
+  labs(title = "Scatterplot with Regression Line",
+       x = "Special Projects Count",
+       y = "Salary",
+       color = "Department ID") + 
+  theme_minimal()
+```
+
+As can be seen from the chart created we have that most people belonging to department 2, 5 and 6 have not or do not proceed in creating special projects. In addition, these people generally have a lower salary. Instead for people especially belonging to department 3 and 4 we have that they proceed with doing more than 4 special projects in their work. Not surprisingly, these individuals have higher salaries.
+
+In conclusion, it can be said that there is a relationship between salary and special project, although not a high one. People who carry out more projects are those who have higher wages, conversely those who have carried out fewer projects have lower wages. Also through a deeper analysis it is found that special projects are mostly done by certain departments more precisely 3 and 4. So those who work in these departments have higher salaries and also more projects to do.
+
+### There is any relationship between who a person works for and their performance score?
+
+Another question we asked is whether there is a relationship between a person's performance and who they work for. As carried out previously we proceed with the creation of a scatterplot
+
+```{r 3.2.0}
+ggplot(FinalData, aes(x = ManagerID, y = PerfScoreID)) +
+  geom_point(color = "blue", size = 2) + 
+  geom_smooth(method = "lm", color = "red", se = FALSE) + 
+  labs(title = "Scatterplot with Regression Line: ManagerID vs PerfScoreID",
+       x = "ManagerID",
+       y = "PerfScoreID") +
+  theme_minimal()
+```
+
+As can be seen from the graph, it does not appear that there is any relationship between the two variables, and for that reason no further comments can be made as they may be furtive for the purposes of the analysis.
+
+### Does gender influence the relationship between salary and performance score?
+
+An interesting question I asked myself while analyzing the variable “GenderID” during the summary is whether there could be any kind of discrimination based on a person's gender. First I want to recreate the scatter plot where on the X's we have an employee's performance score and on the Y instead his salary. Then the observations are divided into red if they are females or blue if they are males.
+
+```{r 3.3.0}
+ggplot(FinalData, aes(x = PerfScoreID, y = Salary, color = Sex)) +
+  geom_point(size = 2) + 
+  labs(title = "Scatterplot of Salary vs PerfScoreID by Gender",
+       x = "Performance Score ID",
+       y = "Salary",
+       color = "Gender") + 
+  theme_minimal()
+```
+
+From the graph created, it does not appear that women are paid less than men, however, let us proceed with more in-depth analysis. More specifically, I want to find out the average earnings based on the sexes and the same scatter plot by adding for the regression line
+
+```{r 3.3.3}
+FinalData %>%
+  group_by(Sex, Position) %>%
+  summarize(Mean_Salary = mean(Salary, na.rm = TRUE)) %>%
+  arrange(Position, Sex)
+```
+
+The constructed table shows that for equal work, women are paid a few hundred euros less than men. Let's look at the first example i.e. the position from “Accountant I”. In this case we have that the salary of a woman is 63,000, while that of a man is 63,761. Also looking at another position such as “Area Sales Manager” we have that men are paid 65,843.80 , while women 63,793.50.
+
+In conclusion it can be said that taking a first look at the information we have a man is often paid little more than a woman. However, more in-depth analyses would be needed to confirm these theses. For example, one would need to consider any tardiness to work or absences or any special projects made.
+
+```{r 3.3.1}
+ggplot(FinalData, aes(x = PerfScoreID, y = Salary, color = Sex)) +
+  geom_point(size = 2) + 
+  geom_smooth(method = "lm", se = FALSE, aes(color = Sex)) + 
+  labs(title = "Scatterplot of Salary vs PerfScoreID by Gender",
+       x = "Performance Score ID",
+       y = "Salary",
+       color = "Gender") + 
+  theme_minimal()
+```
+
+I proceed with creating the same scatterplot as before, but this time differentiating by the gender of the employee. As seen, men tend to have a higher performance score compared to women, which affects their salaries. However, as mentioned earlier, this is not enough to answer the question, as more analyses and variables need to be considered.
+
+### Each manager how many workers have?
+
+This time I wondered if there was the same number of employees for each manager. So I constructed a graph, more precisely a bar plot, where for each manager the name and number of employees is specified.
+
+```{r 3.4.0}
+manager_count <- FinalData %>%
+  group_by(ManagerName) %>%
+  summarise(Count = n()) %>%
+  arrange(desc(Count))
+
+ggplot(manager_count, aes(x = reorder(ManagerName, -Count), y = Count)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  labs(title = "Number of Employees per Manager",
+       x = "Manager Name",
+       y = "Number of Employees") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+As can be seen from the chart created, there are managers who have more than 20 employees and other managers who have fewer than 5 employees. The graph can then be divided into several parts, more specifically those with more than 20 employees, those who have 20 to 10 employees, and those with less than 10 employees. Let's take a look at the new graph.
+
+```{r 3.4.1}
+manager_count <- manager_count %>%
+  mutate(Group = case_when(
+    Count > 20 ~ ">20",
+    Count >= 10 & Count <= 20 ~ "10-20",
+    Count < 10 ~ "<10"
+  ))
+
+ggplot(manager_count, aes(x = reorder(ManagerName, -Count), y = Count, fill = Group)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Number of Employees per Manager",
+       x = "Manager Name",
+       y = "Number of Employees") +
+  scale_fill_manual(values = c(">20" = "red", "10-20" = "yellow", "<10" = "green")) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+From the obtained graph, we have that:
+
+-   There are 8 managers with more than 20 employees.
+
+-   There are 6 managers with 10-20 employees.
+
+-   There are 7 managers with less than 10 employees.
+
+### There is any discrimination on the salary based on the race?
+
+Since we analyzed if there were any discrimination based on gender, I decided to go ahead and see if there were any based on race as well.
+
+First I proceed to create a scatterplot based on the location of where an employee works. It can be seen right away that certain positions are more profitable than others. I then proceed now to divide the various positions based on a person's race.
+
+```{r 3.5.0}
+ggplot(FinalData, aes(x = Position, y = Salary)) +
+  geom_point(color = "blue", size = 3, alpha = 0.7) +
+  labs(title = "Scatter Plot of Salary by Position",
+       x = "Position",
+       y = "Salary") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r 3.5.1}
+ggplot(FinalData, aes(x = Position, y = Salary, color = RaceDesc)) +
+  geom_point(size = 3, alpha = 0.7) +
+  labs(title = "Scatter Plot of Salary by Position",
+       x = "Position",
+       y = "Salary",
+       color = "Race") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+From the graph obtained, there does not appear to be discrimination against any race. However, as with gender, more in-depth analysis would need to be done to confirm or not confirm this hypothesis. However, we note that in certain positions the presence of race prevails. An example is Senior BI Developer composed only of Asians.
+
+### The salary is related to the number of absences? 
+
+Assuming that one of the most important variables is that of wages and that it is a variable that depends on the others we observe how wages vary with the number of absences.
+
+```{r 3.5.2}
+ggplot(FinalData, aes(x = Absences, y = Salary)) +
+  geom_point(color = "blue", size = 3, alpha = 0.7) + 
+  geom_smooth(method = "lm", color = "red", se = TRUE) +
+  labs(title = "Scatter Plot of Salary vs Absences with Regression Line",
+       x = "Absences",
+       y = "Salary") +
+  theme_minimal()
+```
+
+As can be seen it seems there is a slight positive regression line on the number of absences. So the higher a person's number of absences, the higher their salary is. However this does not make much sense, in fact going to review the correlation graph between the two variables there is a very low correlation of 0.0857. For that reason it can be said that although the scatterplot seems to show that the highest the number of absences and the highes the salary the two variables are not correlated with each other and for that reason no comment can be made.
+
+### What are the best recruiting sources?
+
+Another question I have been asking myself is what are the best methods in order to search for personnel, more specifically I want to understand which ones are the most effective and which ones are the ones that allow more personnel to be recruited. It is also interesting to understand where people based on their gender and race apply to the company.
+
+```{r 3.6.0}
+ggplot(FinalData, aes(x = RecruitmentSource, fill = PerformanceScore)) +
+  geom_bar(position = "stack") +
+  labs(title = "Distribution of Performance Scores by Recruitment Source",
+       x = "Recruitment Source",
+       y = "Count",
+       fill = "Performance Score") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+As a first graph we have as a result a simple table where on the x are the methods by which recruitment is done, and on the y are the counts for each method. Each column thereafter is divided into various colors according to the performance of the workers.
+
+However, even though in these two methods the green color that stands for “Fully meets” is the one that appears the most, proportionally other methods may be the ones that help to obtain more qualified personnel.
+
+I now proceed to divide not by performance but by a person's gender.
+
+```{r 3.6.1}
+ggplot(FinalData, aes(x = RecruitmentSource, fill = Sex)) +
+  geom_bar(position = "stack") +
+  labs(title = "Distribution of Performance Scores by Recruitment Source",
+       x = "Recruitment Source",
+       y = "Count",
+       fill = "Performance Score") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+Already previously it was found that the number of female employees exceeded that of men so we were already expecting to get a result where in almost every category women were greater than men. However, it can be seen that some methods such as “Employee Referral” or “On-line Web Application” have a male majority.
+
+Let's now try to divide by race.
+
+```{r 3.6.2}
+ggplot(FinalData, aes(x = RecruitmentSource, fill = RaceDesc)) +
+  geom_bar(position = "stack") +
+  labs(title = "Distribution of Performance Scores by Recruitment Source",
+       x = "Recruitment Source",
+       y = "Count",
+       fill = "Performance Score") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+From the graph obtained, there does not appear to be a definite pattern. The only particular point found on the graph is the one about the “Diversity Job Fair.” As you can clearly see at this point all the workers hired are African. The Diversity Job Fair is a recruitment event specifically designed to promote and encourage diversity, equity, and inclusion in the workplace. In conclusion, such a result could be expected.
+
+Let us now return to the data regarding the first graph, however, let us try to get the values in percentages for each Recruitment source.
+
+```{r 3.6.3}
+performance_table <- FinalData %>%
+  group_by(RecruitmentSource, PerformanceScore) %>%
+  summarise(Count = n(), .groups = 'drop') %>%
+  group_by(RecruitmentSource) %>%
+  mutate(Percentage = (Count / sum(Count)) * 100)
+
+performance_pivot <- performance_table %>%
+  select(RecruitmentSource, PerformanceScore, Percentage) %>%
+  pivot_wider(names_from = PerformanceScore, values_from = Percentage, values_fill = 0)
+
+print(performance_pivot)
+```
+
+As can be more accurately noted, the Diversity Job Fair is that method of hiring more people who then exceeds in employment. This result was not very clear from the graph obtained, from which it appeared to be more indeed the better. Another interesting point is that all the people recruited through “Other” or “On-line Web application” are all fully meets.
+
+In conclusion, it can be said that there are much more effective methods than others for recruiting qualified personnel such as “Diversity Job Fair” or “Employee Referral.” However, other methods such as “Indeed” or “LinkedIn” make it possible to get more staff and of which a good portion are well qualified. Finally, it can be said that the use of more recruitiment methods allows for a more diverse company in terms of both gender and race
+
+### There is a relationship between who a person works for and their performance score?
+
+Another question I asked myself for the purpose of the study was if based on who you work for there was any relationship to their performance. Basically, I would like to understand if people who work with certain managers perform better.
+
+```{r 3.7.0}
+table_manager_performance <- table(FinalData$ManagerName, FinalData$PerformanceScore)
+print(table_manager_performance)
+```
+
+```{r 3.7.1}
+chisq_test <- chisq.test(table_manager_performance)
+print(chisq_test)
+```
+
+Looking at the p-value with a value of 0.2431, it can be said that there is no sufficient evidence to suggest a significant relationship between Manager and Performance. For this reason, it is best to avoid furtive comments, however I proceed with creating one last graph to more clearly observe the performance of various employees by managers.
+
+```{r 3.7.2}
+ggplot(FinalData, aes(x = ManagerName, fill = PerformanceScore)) +
+  geom_bar(position = "fill") +
+  labs(title = "Proportion of Performance Scores by Manager",
+       x = "Manager Name",
+       y = "Proportion",
+       fill = "Performance Score") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+## PCA
+
+Let's start with the PCA analysis.
+
+```{r 4.0.0}
+summary(prcomp(Data_Num))
+```
+
+It is clear that the PC1 explains more variability then others, almost 68,88%. However, it is necessary to standardize the data to make a more opportunity analysis.
+
+```{r 4.0.1}
+data_scaled=scale(Data_Num)
+data_pca=prcomp(data_scaled)
+summary(data_pca)
+```
+
+The result gives:
+
+-   **Standard deviation**, basically it shows the standard deviation of each principal component (PC). The standard deviation represents the amount of variation captured by each principal component.
+
+-   **Proportion of variance**, this shows the proportion of the total variance explained by each PC. The first PC explain 18.12% of the variance. The last PC explain only a 0.022% of the variance.
+
+-   **Cumulative proportion**, this last row is a simple sum of the proportion of variance explained by each. In this way it is clear that the first 8 PC explain more then 75% of the variance.
+
+Other two important PCA tools are:
+
+```{r 4.0.2}
+head(data_pca$rotation)
+```
+
+This shows the contribute of each variable for the building of the PC. If we analyze the first PC it can be seen that "PerfScoreID", "MarriedID" and "GenderID" are positive. That mean that the increase of 1 unit of the first PC make increase these PC for 0.23, 0.02 and 0.04. However "MaritalStatusID", "EmpStatusID" and "DeptID" are negative correlated with this PC. Looking at all the variables for the first CP, we see that the noteworthy values are for the variables, “DeptID” (-0.4294), “Salary” (0.3634), “ManagerID” (-0.3968) and “SpecialProjectsCount” (0.4421). These values suggest that:
+
+-   SpecialProjectsCount and Salary contribute positively and significantly to the first component.
+
+-   DeptID and ManagerID contribute negatively and markedly.
+
+In conclusion, the first PC could represent the aspects related to job position, such as:
+
+-   The amount of special projects handled.
+
+-   The salary of the employee.
+
+-   The department and manager under which the employee works.
+
+```{r 4.0.3}
+head(data_pca$x)
+```
+
+Basically, this is the same of the previews command, but in this case it is analyzed how much each observation explain of the PC.
+
+```{r 4.0.4}
+library(factoextra)
+fviz_pca_ind(data_pca, title="PCA - human resources")
+```
+
+The graph it has been done shows how each observation is distributed based on the first and second PC. Each point in the plot represent an observation of our data-set. The x-axis represent the PC1 and the y-axis represent the PC2. Let's make a more clear graph which shows also the relation between variables.
+
+```{r 4.0.5}
+fviz_pca_biplot(data_pca, title="PCA - human resources")
+```
+
+The second graph shows how each observation (the black points) is distributed based on the first and second PC. Moreover the graph shows some blue arrows which indicate the contribution of variables to the PC. The length is how strong a variable is associated with the PC and the direction is basically if the variable is positively or negatively correlated. Variables such as "Salary" or "SpecialProjectCount" are positively correlated with the first PC. Variables such as "DaysLateLast30" or "Zip" seems to be more correlated with the second PC. The graph shows also the presence of outliers like the observation 92 or 191 which are far from the distribution cloud.
+
+```{r 4.0.6}
+fviz_pca_biplot(data_pca,
+                col.ind='cos2',
+                gradient.cols = c('mistyrose', '#8B0000'),
+                repel= F,
+                geon='point',
+                title= 'PCA - human resources')
+```
+
+This last graph is the one who allow us to make the best interpretation. Basically is the same graph as before with the observations and the variables. However, this time each observation have a different color. More an observation is red more this observation has a $cos^2$ value closer to 1. This indicate that the observation strongly influences the principal components and is well represented in the PCA space. Instead the observation where the $cos^2$ value is closer to 0 are represented with a lighter red, which indicate that the observation has little influence representing the PCA space.
+
+It can be seen that the observation closer to the origin have a lower $cos^2$ values, as they do not contribute significantly to the explanation of the variability of the first two PC. The farther an observation is from the origin, the higher its $cos^2$ value, meaning that these observation contribute more strongly to explaining the variability of the first two principal components.
+
+### Eigenvalue
+
+The eigenvalues correspond to the amount of the variation explained by each principal component (PC)
+
+```{r 4.1.0}
+eig.val = get_eigenvalue(data_pca)
+eig.val
+```
+
+The result can be divided into three parts:
+
+-   **Eigenvalue**, this is the most interesting information. The eigenvalue represents the amount of variance captured by each PC, an higher eigenvalue indicated that the corresponding PC explains more variability. According to the Kaiser criterion if the eigenvalue is greater than 1 then it means that his variable is significant and for this reason should be kept in the study. In this PCA analysis the first 6 PC have an eigenvalue above 1. If it is observed the cumulative variance percentage of the first six PC it can be seen that these PC explain more than the 65% of the total variance.
+
+-   **Variance percent**, as before this part shows the percentage of total variance explained by each PC.
+
+-   **Cumulative variance percent**, as before this part shows the cumulative percentage of total variance explained by the first $n$ PC.
+
+```{r 4.1.1}
+fviz_eig(data_pca, addlabels=T)
+```
+
+The graph above just gives us a clearer view of which PC explains the most variance. It can be confirmed that keeping only the first 8/9 PC in the study allows a high amount of variance to be reproduces.
+
+### Principal Component Analysis Results for variables.
+
+```{r 4.2.0}
+var = get_pca_var(data_pca)
+var
+```
+
+The command wants to extract the information about the variables in the PCA results. The command `var` gives access to all the detailed PCA metrics related to the variables.
+
+```{r 4.2.1}
+round(var$cor, 2)
+```
+
+The first output to be analyzed is the correlation between variables and PCA dimension. This output shows how strongly each variable is correlated with each principal component, helping to identify which variables are most associated with the PC. For example, the variable "FromDiversityJobFairID" is strongly negative correlated with PC8.
+
+```{r 4.2.2}
+corrplot(var$cor, is.corr=F)
+```
+
+To make these results more interpretable, we have created a correlation plot. This corrplot graph visualizes the strength of correlation between variables and PCA dimension. Larger and darker circles indicate stronger correlations, showing which variables are most aligned with specific PC. For example the variables "MarriedID" and "MaritalStatusID" shows a strong correlation with PC5, suggesting that this PC influences mostly these variables and vice versa. Most variables exhibit strong correlations with the first PC. These results support the idea that the first 8/9 PCs explains most of the variability in the data-set, as previously it was assumed.
+
+Let's move on the contrib. analysis.
+
+```{r 4.3.0}
+round(var$contrib, 2)
+```
+
+```{r 4.3.1}
+corrplot(var$contrib, is.corr=F)
+```
+
+The `var$contrib` shows how much each variable contributes to explaining the variability captured by a given dimension. An higher value indicate that the variable have a more significant role in the defining the PC. The main goal of this corrplot is to visualize the contribution of variables to the PCA dimension. An example could be done on "FromDiversityJobFairID" where the contribute on Dim.8 is dark brown suggesting that this variable defines uniquely this dimension.
+
+Let's analyze the contribution of some variables.
+
+```{r 4.3.2}
+fviz_contrib(data_pca, choice = 'var', axes=1)
+```
+
+Each bar represent the contribution of a variable to the first PC. Variable with taller bar have an higher influence on the first PC. The red line represent the expected average contribution if all variable contributed equally for the first PC, so since we have got 17 variables it is expected an average value around 5.88%. This plot has seven variable who reach this value. It can be seen that particularly “SpecialProjectsCount”, “DeptID”, “ManagerID” and “Salary” have higher values confirming the assumptions previously made. A similar comment could be done also for the next two graph.
+
+```{r 4.3.3}
+fviz_contrib(data_pca, choice = 'var', axes=5)
+```
+
+```{r 4.3.4}
+fviz_contrib(data_pca, choice = 'var', axes=8)
+```
+
+The two graphs create confirm the idea that the 5th CP refers mainly to the personal information of workers, thus whether they are moved or not. While the 8th CP refers to the “DiversityJobFairID” then whether a company has determined preferences based on gender and race or not.
+
+Let's now end this part of the analysis on the $cos^2$ part.
+
+```{r 4.4.0}
+round(var$cos2, 2)
+```
+
+The cos2 shows how much a variable is good represented by a PC, in this case we can immediately see that the last Dim. have really low values. However let’s proceed creating some graph to make an easier interpretation.
+
+```{r 4.4.1}
+fviz_cos2(data_pca, choice='var', axes=1)
+```
+
+As was done previously for the `var$contrib` also now we proceed using some bar plots. The first plot gives the values of the $cos^2$ values of variables for the first PC. A value of $cos^2$ closer to 1 indicate that the variable is represented in a good way by the PC, however a low $cos^2$ value suggest that the variable is not represented enough in the PC. In this graph we have:
+
+-   Variables such as "SpecialProjectsCount" and "DepID" with a $cos^2$ value above 0.5, which means that these variables are the best represented by the first PC.
+
+-   Variables such as "ManagerID" and "Salary" with a value between 0.25 and 0.5, meaning that these variables have a significantly contribution by the first PC.
+
+-   The other variables have a value lower than 0.25. Those variables are not represented by the first PC.
+
+A similar comment could be done also for the next two graphs which show how much the variables are represented by the 5° and 8° PC.
+
+```{r 4.4.2}
+fviz_cos2(data_pca, choice='var', axes=5)
+```
+
+```{r 4.4.3}
+fviz_cos2(data_pca, choice='var', axes=8)
+```
+
+```{r 4.4.4}
+fviz_cos2(data_pca, choice='var', axes=1:8)
+```
+
+The last graph shows how the $cos^2$ values of the first eight PCs for individual variables. The $cos^2$ measures how well a variable is represented by the selected PCs.
+
+-   If it is \>0.8 then it an be called well represented. In this case we have around 4 variables which have a $cos^2$ high.
+
+-   If it is between 0.8 and 0.5 it means that the variable are represented in a good way, however adding some more PC could give to them a better interpretation.
+
+-   If it has a value \<0.5 then it is not represented by PCs. In our case we have "EmpSatisfaction" where the $cos^2$ is low.
+
+In conclusion, the use of other PCs is necessary for the explanation of the variable “EmpSatisfaction,” this would imply that all those varibles with a cos2 between 0.8 and 0.5 also have a better depiction in the study.
+
+```{r 4.5.0}
+fviz_nbclust(var$coord, kmeans, method='wss', k.max=nrow(var$coord) -1) +
+  ggtitle('Elbow method')
+```
+
+```{r 4.5.1}
+res.km=kmeans(var$coord, center = 3 , nstart =25)
+grp= as.factor(res.km$cluster)
+
+fviz_pca_var(data_pca,
+             col.var=grp,
+             palette=c('red','blue','green'),
+             legend.title='Cluster',
+             labelsize=2,
+             repel=T
+             )
+```
+
+The graph shows me the variables represented as vectors, with the length of the vector indicating the importance of the variable and the direction representing the correlation with the principal components (first and second PCs). The three groups go in different directions, which suggests that the groups of variables have different correlations with the first principal components. Let’s make a comment over the three groups:
+
+-   **Red group**, in this group we have variables such as "Termd", "EmpStatusID", "PositionID" and "MaritalStatusID". These variables are strongly connected with PC1 and PC2 in a negative way. However in this group we also have variables such as "MarriedID" who are positive correlated with PC1 and PC2. Probably the number of the cluster isn't enough and for this reason some interpretation could be not perfectly correct.
+
+-   **Blue group**, in this group we have variables such as "SpecialProjectCount" or "Salary" these variables are positive correlated with PC1 and PC2. However we can also find variables such as "PerfScoreID", "EngagementSurvey" and "EmpSatisfaction" which are positive correlated with PC1, but negative correlated with PC2. In conclusion it can be said that in this group we can find the variables that are positive correlated with PC1.
+
+-   **Green group**, in the last group we have variables such as "ManagerID", "DepID" or "DaysLateLast30". These variables are almost all negative correlated with the first PC. Regarding PC2 we have variables that are positively correlated with PC2 and others that are negatively correlated (albeit by a very small amount). As with the red group here we have variables that do not follow the pattern, probably the number of clusters or the size space does not allow a correct interpretation for this variable.
+
+### Principal Component Analysis Results for individuals
+
+A similar work to the one just done can be done for individuals, the observation.
+
+```{r 4.6.0}
+ind = get_pca_ind(data_pca)
+ind
+```
+
+```{r 4.6.1}
+res.km=kmeans(ind$coord, centers = 3, nstart=25)
+grp2=as.factor(res.km$cluster)
+fviz_pca_ind(data_pca,
+             geom.in="point",
+             col.ind=grp2,
+             palette=c('red','blue','green'),
+             legend.title='Cluster',
+             labelsize=2,
+             repel=T,
+             addEllipses = T
+)
+```
+
+The individuals are categorized into three groups:
+
+-   **Group 1** (red circle), in this case are the observation positive correlated to the second PC and negative correlated to the first PC
+
+-   **Group 2** (blue triangles), this group is the one near to the group 1 and 3. It seems to have a low negative correlation with both the PC
+
+-   **Group 3** (green squares), this group is the one where the observation are positive correlated with the first PC. It seems to do not have any pattern regarding the second PC.
+
+Group 1 is the one to have the largest spread, indicating the highest variability. Group 2 has the smallest ellipse, which suggest more homogeneity.
+
+Let's now proceed creating a graph which includes also the variables.
+
+```{r 4.6.2}
+fviz_pca_biplot(data_pca,
+                repel=T,
+                geom='point',
+                col.var='darkblue',
+                col.ind=grp2,
+                palette=c('red','blue','green'),
+                addEllipses = T)
+```
+
+In conclusion, it can be said that the appropriate number of PCs may be on the 9/10 since considering 8 PCs the variability of some variables is not well represented. As for the comments of the last graphs divided into groups I will now proceed with the cluster analysis where it will be possible to make more accurate and precise comments.
+
+## Cluster 
+
+Let's start with the cluster analysis. Cluster analysis is a way to group things that are similar to each other. The goal is to have items in the same group be as similar as possible and items in different groups be as different as possible.
+
+First of all it is necessary to standardize the data to make a more opportunity analysis.
+
+```{r 5.1.0}
+library(FactoMineR)
+data_st=scale(Data_Num)
+```
+
+```{r 5.1.1}
+fviz_nbclust(data_st,
+             kmeans,
+             method='wss',
+             nstart=10) +
+  geom_vline(xintercept = 3, linetype=2)
+```
+
+As seen previously during PCA the number of clusters adjusted by the elbow method appears to be equal to 3. The elbow method is not the only method optimal to determine the appropriate number of clusters. There are other methods including the silhouette method. Let try to costruit a graph based on another method such as the silhouette one.
+
+```{r 5.1.2}
+library(cluster)
+fviz_nbclust(data_st, pam, method='silhouette', nstart=10)
+```
+
+This method also confirms that the appropriate number of cluster is 3. I proceed with the analysis then by considering three clusters as the optimal number.
+
+```{r 5.1.3}
+data.km=kmeans(data_st, 3, nstart=10)
+print(data.km)
+```
+
+The command above here results in the mean of each variable for the various cluster, the vector of clusters (it indicates for each observation whether it belongs to cluster 1, 2 or 3), within-cluster sum of squares which is the sum of the distances of the points from the cluster of its centroid. Low values indicate compact clusters. Among the most important information that can be obtained is certainly that concerning the clusters mean. From the results obtained, it can be concluded that cluster 1 represent employees with moderate performance scores, who are less involved in special projects, earn below-average salaries, and are relatively punctual. Cluster 2 could represent high-performing, well-compensated employees actively involved in special projects. They might belong to critical departments or roles. Cluster 3 likely represents underperforming, disengaged employees with punctuality issues and lower salaries. They might require additional support or performance improvement plans. I proceed with the use of a command to better interpret the results obtained used the values of the data set under study.
+
+```{r 5.1.4}
+aggregate(Data_Num, by=list(data.km$cluster), mean)
+```
+
+The results are similar with the earlier interpretations.
+
+1.  **Group 1**: Average-performing employees with moderate salaries and no involvement in special projects.
+
+2.  **Group 2**: High-performing, highly engaged employees with high salaries and significant project involvement.
+
+3.  **Group 3**: Underperforming, disengaged employees with punctuality and performance issues.
+
+I decided to create a graph with normalized values to make everything clearer
+
+```{r 5.1.5}
+normalize <- function(x) {
+  return((x - min(x)) / (max(x) - min(x)))
+}
+
+data_normalized <- as.data.frame(lapply(Data_Num, normalize))
+
+data_normalized$Cluster <- data.km$cluster
+
+data_long_normalized <- data_normalized %>%
+  pivot_longer(
+    cols = -Cluster, 
+    names_to = 'Characteristic',
+    values_to = 'Value'
+  )
+
+
+ggplot(data_long_normalized, aes(x = Characteristic, y = Value, fill = as.factor(Cluster))) +
+  geom_bar(stat = 'summary', fun = 'mean', position = 'dodge') +
+  theme_minimal() +
+  labs(title = 'Cluster Characteristics Comparison (Normalized Data)',
+       x = 'Characteristic',
+       y = 'Mean Value (Normalized)',
+       fill = 'Cluster') +
+  stat_summary(
+    fun = 'mean',
+    aes(label = sprintf("%.2f", after_stat(y))),
+    geom = 'text',
+    position = position_dodge(width = 0.9),
+    vjust = -0.5,
+    size = 3
+  )
+```
+
+This graph is used to confirm and visualize the hypotheses that were previously made about the clusters. Basically, by creating this bar graph, it is making it clearer and more visible how the three clusters are divided.
+
+```{r 5.1.6}
+Data_Num$Cluster = data.km$cluster
+print('Cluster sizes:')
+print(table(Data_Num$Cluster))
+```
+
+Interesting is to understand the sizes of the three clusters. Based on the data-set under study, we have that the size of cluster 1 is higher than the one of cluster 2 and 3.
+
+```{r 5.1.7}
+fviz_cluster(data.km, data=data_st, geom='point', repel=F, show.clust.cent = T)
+```
+
+As a last graph I created a scatterplot where each point represents an observation, in our case the employees. The red observations belong to the first cluster and are those that have neutral or negative PC1 and PC2 values. To cluster 2 belong the green observations, and they are the observations that have positive PC1 and PC2 both negative and positive. Finally to cluster 3 belong those observations that have negative PC1 values as PC1 and positive PC2 values as PC2.
+
+### Choice of distance
+
+The study of cluster analysis proceeds by using different clustering methods such as ward, mean or single. Then for each method we proceed to create its dendogram. To understand the quality of clustering I will use the correlation of cophenetic distances. However, first it is necessary to decide which distance method to use. In this case I will use the Euclidean distance.
+
+```{r 5.2.0}
+datos.dist.eucl=dist(data_st, method='euclidean')
+fviz_dist(datos.dist.eucl)
+```
+
+The command used is nothing more than the creation of the distance matrix. Each small square indicates the Euclidean distance between two variables. If a cell is dark it means that the distance between the two observations is far, on the other hand if the color is light it means that this distance is small. This graph allows to quickly understand which observations are distant from each other and which are close to each
+other.
+
+#### Ward method
+
+The Ward.D2 method is a method of cluster analysis. this method is based on minimizing the sum of variances within clusters. This method make it possible to produce separate cluster, which is why it is considered one of the best methods.
+
+```{r 5.3.0.1}
+dato.hc=hclust(d=datos.dist.eucl, method='ward.D2')
+fviz_dend(dato.hc, k=3, cex=0.5, rect=T, rect_border = 'blue', rect_fill =F)
+```
+
+The above graph directly shows which observations belong to one cluster and which belong to another cluster. However, commenting on the dendograms is quite difficult for that reason I proceed to verify the cophenetic distance to check whether the cluster I obtained can be considered good or not. If such value is high it means to have a better cluster.
+
+```{r 5.3.1.1}
+res.coph=cophenetic(dato.hc)
+cor(datos.dist.eucl, res.coph)
+```
+
+The correlation value is mid. A value of 0.5828 indicates moderate correlation this signifies that the cluster has an average ability to preserve the original distance between observations. However, for the purpose of commenting on these indices more correctly I proceed to the creation of the dendograms and cophenetic distance for the other cluster methods as well.
+
+#### Average method
+
+The average method is a cluster technique used to group observations. In fact, in each step the two clusters that have the lowest average distance are combined. This method is a balanced method that produces very robust results with little sensitivity for outliers.
+
+```{r 5.3.0}
+dato.md=hclust(d=datos.dist.eucl, method='average')
+fviz_dend(dato.md, k=3, cex=0.5, rect=T, rect_border = 'blue', rect_fill =F)
+```
+
+```{r 5.3.1}
+res.coph=cophenetic(dato.md)
+cor(datos.dist.eucl, res.coph)
+```
+
+#### Single method
+
+The single bond method is the last cluster technique we will see in this study. In this method, observations are joined based on their minimum distance. This method can be affected by outliers, so special attention must be paid to the following method.
+
+```{r 5.4.0}
+dato.sg=hclust(d=datos.dist.eucl, method='single')
+fviz_dend(dato.sg, k=3, cex=0.5, rect=T, rect_border = 'blue', rect_fill =F)
+```
+
+```{r 5.4.1}
+res.coph=cophenetic(dato.sg)
+cor(datos.dist.eucl, res.coph)
+```
+
+### Conclusion of cluster
+
+|                | Correlation between cophenetic and euclidean distance |
+|----------------|-------------------------------------------------------|
+| Ward method    | 0.5828                                                |
+| Average method | 0.8107                                                |
+| Single method  | 0.7520                                                |
+
+The results obtained are critical in choosing the best clustering method. A value close to 1 indicates that the dendogram represents the distances well, while a value close to 0 indicates poor representation of the data. The results obtained can all be considered good with medium to high values. The average method has the highest correlation and this can be called the most effective in representing the structure of the data. As the second best method we find the single method which, however, may have problems due to outliers. Finally as the last method we have the ward method which seems to be the worst in this case. Pay attention that the dendogram created by the ward method remains the clearest one.
+
+In conclusion, it can be said that cluster 1 have average-performing employees with moderate salaries and no involvement in special projects. cluster 2 have got high-performing, highly engaged employees with high salaries and significant project involvement. The last group have underperforming, disengaged employees with punctuality and performance issues. the best cluster method is the average method because of its cophenetic correlation.
+
+## Can we predict who is going to terminate and who isn't?
+
+Balancing the data-set is a crucial step when working with imbalanced classes, where one class has significantly more samples than the other. Imbalance can lead to biased models that favor predicting the majority class, often resulting in poor performance for the minority class
+
+```{r 6.0}
+library(rpart.plot)
+library(rpart)
+library(caret)
+
+Data_Num <- na.omit(Data_Num)
+
+set.seed(123)
+
+train_index <- createDataPartition(Data_Num$Termd, p = 0.7, list = FALSE)
+train_data <- Data_Num[train_index, ]
+test_data <- Data_Num[-train_index, ]
+
+train_data$Termd <- factor(train_data$Termd, levels = c(0, 1))
+test_data$Termd <- factor(test_data$Termd, levels = c(0, 1))
+```
+
+The result of your balancing indicates that the classes are now almost equally represented in the training data. This balance helps the model improve its understanding and prediction accuracy for both classes. We have a train class with 70% of the observations and the test class has 30% observation.
+
+```{r 6.1}
+tree_model <- rpart(Termd ~ ., data = train_data, method = "class")
+
+predictions <- predict(tree_model, test_data, type = "class")
+
+predictions <- factor(predictions, levels = levels(test_data$Termd))
+
+conf_matrix <- confusionMatrix(predictions, test_data$Termd)
+
+print(conf_matrix)
+```
+
+First of all let's analyze the confusion matrix:
+
+-   **True Negatives (TN)** = 55: The model correctly predicted class 0 as 0.
+
+-   **False Positives (FP)** = 2: The model incorrectly predicted class 0 as 1.
+
+-   **False Negatives (FN)** = 0: The model incorrectly predicted class 1 as 0.
+
+-   **True Positives (TP)** = 33: The model correctly predicted class 1 as 1.
+
+The accuracy of the model is 0.9889 this indicate that the model predict correctly 97.78% of the observation. That it's a really high value. The NIR indicates that 61.11% of the data belongs to class 0. The p-value for accuracy is higher than the NIR shows that your model is significantly better than just predicting the majority class. In conclusion it can be said that the model is performing really well with high accuracy (97.78%) and no false negatives for class 1. It has a perfect sensitivity score, which means it catches every instance of class 1.
+
+```{r 6.2}
+rpart.plot(tree_model, main = "Decision Tree for Termd (Balanced Training)")
+```
+
+As can be seen from the graph created the variable that discriminates the most is EmpStatusID, when this variable is greater than 4 then we will have as answer 1, vice versa if the value is 4 or less then we will have as result 0.
+
+## Conclusion
+
+There are numerous conclusions that can be drawn from a data set such as the one we studied. Let's start by talking about PCA. We have that the appropriate number of PCs is 9/10 in that a lower number does not allow us to reproduce enough variability in our variables. Some PCs draw on multiple variables such as PC1, while others draw on a small number such as PC5 which draws on “MarriedID” and “MaritalStatusID” or PC8 which instead reproduces the variability of “FromDiversityJobFairID.” Regarding cluster analysis, we found through two methods that the appropriate number of clusters is 3. Cluster 1 have average-performing employees with moderate salaries and no involvement in special projects. cluster 2 have got high-performing, highly engaged employees with high salaries and significant project involvement. The last group have underperforming, disengaged employees with punctuality and performance issues. the best cluster method is the average method because of its cophenetic correlation. Finally with regard to the constructed model there is an accuracy of 97.78%, which can be considered excellent. Predicting who is going to terminate the contract or not then should be quite easy for the company. A more general analysis can be made instead for what concerns EDA. The more a person tends to do special projects, the higher his or her salary will be. There does not appear to be any preference based on a person's gender or race, however, more detailed analyses with more data available could yield different results than those discovered. It was also found that managers have different numbers of employees, but working for one manager or another does not affect a person's performance. Finally, there are various sites for recruiting staff. Some are more functional than others such as “Indeed” or “LinkedIn,” and still others allow for more qualified staff than others such as “Diversity Job Fair” or “Employee Referral.
