@@ -15,17 +15,17 @@ This repository is organized into four distinct modules, each exploring a differ
 * **Key Techniques:** EDA, Principal Component Analysis (PCA), and Hierarchical Clustering.
 * **Highlight:** Developed a classification model predicting employee terminations with a **97.78% accuracy rate**.
 
-### 2. [🏠 Real Estate Segmentation](./Real-Estate-Clustering)
+### 2. [🏠 Real Estate Segmentation](./Cluster%20analysis%20project)
 * **Focus:** Market segmentation of housing data based on structural and economic features.
 * **Key Techniques:** Hierarchical Clustering (Ward, Single, and Average linkages).
 * **Highlight:** Applied the **Cophenetic Correlation Coefficient** to validate and select the most representative clustering method.
 
-### 3. [📉 PCA: Global Health & Consumer Behavior](./PCA-Multivariate-Analysis)
+### 3. [📉 PCA: Global Health & Consumer Behavior](./PCA%20project)
 * **Focus:** Dimensionality reduction for complex datasets (WHO Life Expectancy & Starbucks Surveys).
 * **Key Techniques:** PCA, Biplot Analysis, and Scree Plot interpretation.
 * **Highlight:** Identified latent variables that explain **>90% of total variance**, enabling more efficient data modeling.
 
-### 4. [🌍 Global Wellbeing: World Happiness Analysis](./World-Happiness-Analysis)
+### 4. [🌍 Global Wellbeing: World Happiness Analysis](./World%20happiness%20analysis%20project)
 * **Focus:** Investigating socio-economic drivers of happiness across different global regions.
 * **Key Techniques:** Time-series comparison (2021 vs. 2024) and Correlation Analysis.
 * **Highlight:** Analyzed the interplay between GDP, Social Support, and Freedom in determining national happiness scores.
